@@ -1,7 +1,7 @@
 module NiSparseArrays
 
 using LinearAlgebra, SparseArrays
-using NiLang, ForwardDiff
+using NiLang
 using NiLang.AD 
 
 include("linalg.jl")

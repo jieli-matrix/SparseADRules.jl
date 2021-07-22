@@ -1,4 +1,4 @@
-using NiSparseArrays:imul!, forwarddiff_mv_jacobian, nilang_mv_jacobian
+using NiSparseArrays:imul!, nilang_mm_jacobian
 const approx_rtol = 100*eps()
 
 # real value case
@@ -56,13 +56,12 @@ end
     end
 end
 
-
 @testset "jacobian" begin
     for T in [Float64, ComplexF64]
         A = sprand(T, 10, 10, 0.2)
         x = randn(T, 10)
-        JF = forwarddiff_mv_jacobian(A, x)
-        JN = nilang_mv_jacobian(A, x)
+        JF = forwarddiff_mm_jacobian(A, x)
+        JN = nilang_mm_jacobian(A, x)
         @test isapprox(JF, JN)
     end
 end

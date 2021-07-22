@@ -19,7 +19,7 @@ fitparams(A::SparseMatrixCSC, p) = SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval,
     mvloss(l, j, y::AbstractArray{<:Real}, A, x) -> scalar l 
 mvloss defines loss on sparse-matrix & dense vector/matrix multiplication(Real Type)   
 """
-@i function mvloss(l, j, y::AbstractArray{<:Real}, A, x)
+@i function mmloss(l, j, y::AbstractArray{<:Real}, A, x)
     imul!(y, A, x, 1.0, 1.0)
     l += y[j]
 end
@@ -28,7 +28,7 @@ end
     mvloss(l, j, y::AbstractArray{<:Complex}, A, x) -> scalar l 
 mvloss defines loss on sparse-matrix & dense vector/matrix multiplication(Complex Type)   
 """
-@i function mvloss(l, j, y::AbstractArray{<:Complex}, A, x)
+@i function mmloss(l, j, y::AbstractArray{<:Complex}, A, x)
     imul!(y, A, x, 1.0, 1.0)
     if j%2 == 1
         l += y[div(j-1,2)+1].re
@@ -41,29 +41,14 @@ end
     nilang_mv_jacobian(A, x::AbstractArray) -> AbstractArray J
 nilang_mv_jacobian calculates the jacobian with respect to parameter A and x based on mvloss in NiLang
 """
-function nilang_mv_jacobian(A, x::AbstractArray)
+function nilang_mm_jacobian(A, x::AbstractArray)
     px, pA = params(x), params(A)
     J = zeros(eltype(px), length(px), length(px) + length(pA))
     for j=1:length(px)
-        _, _, _, _, gA, gx = NiLang.AD.Grad(mvloss)(Val(1), 0.0, j, zero(x), A, x)
+        _, _, _, _, gA, gx = NiLang.AD.Grad(mmloss)(Val(1), 0.0, j, zero(x), A, x)
         J[j,:] = vcat(grad(params(gA)), grad(params(gx)))
     end
     return J
 end
 
-"""
-    forwarddiff_mv_jacobian(A, x) -> AbstractArray J 
-forwarddiff_mv_jacobian calculates the jacobian with respect to parameter A and x based on multiplication in ForwardDiff
-"""
-function forwarddiff_mv_jacobian(A, x)
-    pA = params(A)
-    px = params(x)
-    pAx = vcat(pA, px)
-    ForwardDiff.jacobian(pAx) do pAx
-        pA = pAx[1:length(pA)]
-        px = pAx[length(pA)+1:end]
-        A2 = fitparams(A, pA)
-        x2 = fitparams(x, px)
-        y = params(A2 * x2)
-    end
-end
+
