@@ -49,3 +49,51 @@ for (T, t) in ((Adjoint, adjoint), (Transpose, transpose))
     end
 end
 
+@i function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, A::AbstractSparseMatrix, α::Number, β::Number)
+    @safe size(X, 2) == size(A, 1) || throw(DimensionMismatch())
+    @safe size(X, 1) == size(C, 1) || throw(DimensionMismatch())
+    @safe size(A, 2) == size(C, 2) || throw(DimensionMismatch())
+    if (β != 1, ~)
+        @safe error("only β = 1 is supported, got β = $(β).")
+    end
+    @invcheckoff for col in 1:size(A, 2)
+        @inbounds for k in nzrange(A, col)
+            @simd for multivec_row in 1:size(X,1)
+                C[multivec_row, col] += X[multivec_row, A.rowval[k]]*A.nzval[k]*α
+            end
+        end
+    end
+end
+
+# @i function imul!(C::StridedVecOrMat, X::Adjoint{<:Any,<:DenseMatrixUnion}, A::AbstractSparseMatrix, α::Number, β::Number)
+#     @safe size(X, 2) == size(A, 1) || throw(DimensionMismatch())
+#     @safe size(X, 1) == size(C, 1) || throw(DimensionMismatch())
+#     @safe size(A, 2) == size(C, 2) || throw(DimensionMismatch())
+#     if (β != 1, ~)
+#         @safe error("only β = 1 is supported, got β = $(β).")
+#     end
+#     @invcheckoff for multivec_row in 1:size(X, 1)
+#         for col in 1:size(A, 2)
+#             @inbounds for k in nzrange(A, col)
+#                 C[multivec_row, col] += X[multivec_row, A.rowval[k]]*A.nzval[k]*α
+#             end
+#         end
+#     end
+# end
+
+# this is a better version 
+@i function imul!(C::StridedVecOrMat, X::Adjoint{<:Any,<:DenseMatrixUnion}, A::AbstractSparseMatrix, α::Number, β::Number)
+    @safe size(X.parent, 1) == size(A, 1) || throw(DimensionMismatch())
+    @safe size(X.parent, 2) == size(C, 1) || throw(DimensionMismatch())
+    @safe size(A, 2) == size(C, 2) || throw(DimensionMismatch())
+    if (β != 1, ~)
+        @safe error("only β = 1 is supported, got β = $(β).")
+    end
+    @invcheckoff for multivec_row in 1:size(X.parent, 2)
+        for col in 1:size(A, 2)
+            @inbounds for k in nzrange(A, col)
+                C[multivec_row, col] += X.parent[A.rowval[k], multivec_row]*A.nzval[k]*α
+            end
+        end
+    end
+end

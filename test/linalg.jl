@@ -1,7 +1,6 @@
 using NiSparseArrays:imul!, nilang_mm_jacobian
 const approx_rtol = 100*eps()
 
-# real value case
 @testset "matrix multiplication" begin
     for i = 1:5
         A = sprand(10, 5, 0.5)
@@ -19,7 +18,6 @@ const approx_rtol = 100*eps()
     end
 end
 
-# complex value case
 @testset "complex matrix multiplication" begin
     for i = 1:5
         A = sprand(ComplexF64, 10, 5, 0.2)
@@ -56,6 +54,8 @@ end
     end
 end
 
+
+
 @testset "jacobian" begin
     for T in [Float64, ComplexF64]
         A = sprand(T, 10, 10, 0.2)
@@ -63,5 +63,27 @@ end
         JF = forwarddiff_mm_jacobian(A, x)
         JN = nilang_mm_jacobian(A, x)
         @test isapprox(JF, JN)
+    end
+end
+
+@testset "dense matrix-sparse matrix multiplication" begin
+    for i = 1:5
+        B = rand(10, 10)
+        A = sprand(10, 5, 0.5)
+        outm = B*A
+        C = zero(outm)
+        ioutm = imul!(copy(C), B, A, 1 ,1)[1] # replace with imul!(similar(outv), A, b, 1, 1)[1]?
+        @test ≈(ioutm, outm, rtol=approx_rtol)
+    end
+end
+
+@testset "adjoint dense matrix-sparse matrix multiplication" begin
+    for i = 1:5
+        B = rand(10, 5)
+        A = sprand(10, 5, 0.5)
+        outm = B'*A
+        C = zero(outm)
+        ioutm = imul!(copy(C), B', A, 1 ,1)[1] # replace with imul!(similar(outv), A, b, 1, 1)[1]?
+        @test ≈(ioutm, outm, rtol=approx_rtol)
     end
 end
