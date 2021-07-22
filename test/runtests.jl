@@ -1,8 +1,6 @@
 using NiSparseArrays
-using Test
-using LinearAlgebra
-
+using Test, Random, LinearAlgebra, NiLang, ForwardDiff, SparseArrays
+using NiLang.AD
 @testset "NiSparseArrays.jl" begin
     include("linalg.jl") #add sparse multiplication 
-    #include("sparsegrad.jl") #add sparse gradient test
 end

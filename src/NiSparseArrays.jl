@@ -1,10 +1,9 @@
 module NiSparseArrays
 
-using LinearAlgebra: eltype
-using LinearAlgebra
-using NiLang
-using SparseArrays: SparseMatrixCSC, AbstractSparseMatrix, nonzeros, rowvals, nzrange
+using LinearAlgebra, SparseArrays
+using NiLang, ForwardDiff
+using NiLang.AD 
 
 include("linalg.jl")
-
+include("sparsegrad.jl")
 end

@@ -49,33 +49,3 @@ for (T, t) in ((Adjoint, adjoint), (Transpose, transpose))
     end
 end
 
-# this is an implementation with tmp variables
-# worser performance than no alias version above in benchmark results
-
-# for (T, t) in ((Adjoint, adjoint), (Transpose, transpose))
-#     @eval @i function imult!(C::StridedVecOrMat, xA::$T{<:Any,<:AbstractSparseMatrix}, B::DenseInputVecOrMat, α::Number, β::Number)
-#         @safe size(xA.parent, 2) == size(C, 1) || throw(DimensionMismatch())
-#         @safe size(xA.parent, 1) == size(B, 1) || throw(DimensionMismatch())
-#         @safe size(B, 2) == size(C, 2) || throw(DimensionMismatch())
-#         if (β != 1, ~)
-#             @safe error("only β = 1 is supported, got β = $(β).")
-#         end
-#         @invcheckoff for k in 1:size(C, 2)
-#             @inbounds for col in 1:size(xA.parent, 2)
-#                 @routine begin
-#                 tmp ← zero(eltype(C))
-#                 for j in nzrange(xA.parent, col)
-#                     @routine begin
-#                     anc2 ← zero(eltype(xA))
-#                     anc2 += $t(xA.parent.nzval[j])
-#                     end
-#                     tmp += anc2*B[xA.parent.rowval[j],k]
-#                     ~@routine
-#                 end
-#                 C[col,k] += tmp * α
-#                 end
-#                 ~@routine
-#             end
-#         end
-#     end
-# end
