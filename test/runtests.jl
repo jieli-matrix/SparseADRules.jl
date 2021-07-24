@@ -1,4 +1,5 @@
-using LinearAlgebra: include
+using Base: Float64
+using LinearAlgebra: include, eltype
 using NiSparseArrays
 using Test, Random, LinearAlgebra, NiLang, ForwardDiff, SparseArrays
 using NiLang.AD
