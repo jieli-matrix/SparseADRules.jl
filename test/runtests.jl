@@ -1,3 +1,4 @@
+using SparseArrays: spmatmul
 using Base: Float64
 using LinearAlgebra: include, eltype
 using NiSparseArrays

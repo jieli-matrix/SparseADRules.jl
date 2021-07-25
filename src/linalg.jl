@@ -209,3 +209,82 @@ end
     end
 end 
 
+# a simple version of Gustavson matrix algorithms
+function i_spmatmul(A::SparseMatrixCSC{Tv, Ti}, B::SparseMatrixCSC{Tv, Ti}) where {Tv, Ti}
+    mA, nA = size(A)
+    nB = size(B, 2)
+    nA == size(B, 1) || throw(DimensionMismatch())
+
+    # use mA*nB as nonzeros size of C would be ok, upper bound
+    # we may consider estimate a better bound later
+    nnzC = mA*nB
+    colptrC = Vector{Ti}(undef, nB+1)
+    rowvalC = Vector{Ti}(undef, nnzC)
+    nzvalC = Vector{Tv}(undef, nnzC)
+
+    @inbounds begin
+        ip = 1 #colptr index for C 
+        xb = fill(false, mA) #bool column of C in iteration
+        for i in 1:nB
+            colptrC[i] = ip
+            # update ip for next column in C
+            ip = i_spcolmul!(rowvalC, nzvalC, xb, i, ip, A, B)
+        end
+        colptrC[nB+1] = ip
+    end
+    # delete surplus zeros in C
+    resize!(rowvalC, ip - 1)
+    resize!(nzvalC, ip - 1)
+
+    # construct C as SparseMatrixCSC format
+    C = SparseMatrixCSC(mA, nB, colptrC, rowvalC, nzvalC)
+    C
+end
+
+function i_spcolmul!(rowvalC, nzvalC, xb, i, ip, A, B)
+    rowvalA = rowvals(A); nzvalA = nonzeros(A)
+    rowvalB = rowvals(B); nzvalB = nonzeros(B)
+    mA = size(A, 1)
+    ip0 = ip
+    k0 = ip - 1 
+    @inbounds begin
+        for jp in nzrange(B, i) # nz address of B[:,i]
+            nzB = nzvalB[jp]
+            # row index for nzB -> select A[:,j] do nzB*A[:,j]
+            j = rowvalB[jp] 
+            for kp in nzrange(A, j)
+                nzC = nzvalA[kp] * nzB
+                k = rowvalA[kp] # nz row index
+                if xb[k]
+                    # nzvalC saved not continous
+                    # xv used in original Gustavson algorithm
+                    nzvalC[k+k0] += nzC # update C's column
+                else
+                    # nzvalC saved not continous
+                    nzvalC[k+k0] = nzC # initial C's column
+                    xb[k] = true
+                    rowvalC[ip] = k
+                    ip += 1
+                end
+            end
+        end
+        if ip > ip0 # add new nzvals or not
+            for k = 1:mA
+                if xb[k]
+                    xb[k] = false
+                    rowvalC[ip0] = k
+                    nzvalC[ip0] = nzvalC[k+k0] # save it in continous memory
+                    ip0 += 1
+                end
+            end
+        end
+    end
+    ip
+end
+
+function i_estimate_mulsize(m::Integer, nnzA::Integer, n::Integer, nnzB::Integer, k::Integer)
+    # may be seperate into serveral steps in NiLang
+    p = (nnzA / (m * n)) * (nnzB / (n * k)) 
+    # branch_keeper need here?
+    p >= 1 ? m*k : p > 0 ? Int(ceil(-expm1(log1p(-p) * n)*m*k)) : 0 
+end
