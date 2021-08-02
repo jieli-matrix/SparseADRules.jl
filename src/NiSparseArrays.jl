@@ -1,5 +1,6 @@
 module NiSparseArrays
 
+using LinearAlgebra: eltype
 using LinearAlgebra, SparseArrays
 using NiLang
 using NiLang.AD 
