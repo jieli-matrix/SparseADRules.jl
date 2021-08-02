@@ -4,120 +4,6 @@ const AdjOrTransDenseMatrix = Union{DenseMatrixUnion,Adjoint{<:Any,<:DenseMatrix
 const DenseInputVector = Union{StridedVector, BitVector}
 const DenseInputVecOrMat = Union{AdjOrTransDenseMatrix, StridedVector}
 
-
-@i function imul!(C::StridedVecOrMat, A::AbstractSparseMatrix, B::DenseInputVecOrMat, α::Number, β::Number) 
-    @safe size(A, 2) == size(B, 1) || throw(DimensionMismatch())
-    @safe size(A, 1) == size(C, 1) || throw(DimensionMismatch())
-    @safe size(B, 2) == size(C, 2) || throw(DimensionMismatch())
-    if (β != 1, ~)
-        @safe error("only β = 1 is supported, got β = $(β).")
-    end
-    # Here, we close the reversibility check inside the loop to increase performance
-    @invcheckoff for k = 1:size(C, 2)
-        @inbounds for col = 1:size(A, 2)
-            αxj ← zero(eltype(B))
-            αxj += B[col,k] * α
-            for j = nzrange(A, col)
-                C[A.rowval[j], k] += A.nzval[j]*αxj
-            end
-            αxj -= B[col,k] * α
-            αxj → zero(eltype(B))
-        end
-    end
-end
-
-
-
-@i function imul!(C::StridedVecOrMat, xA::Adjoint{<:Any,<:AbstractSparseMatrix}, B::DenseInputVecOrMat, α::Number, β::Number)
-        @safe size(xA.parent, 2) == size(C, 1) || throw(DimensionMismatch())
-        @safe size(xA.parent, 1) == size(B, 1) || throw(DimensionMismatch())
-        @safe size(B, 2) == size(C, 2) || throw(DimensionMismatch())
-        if (β != 1, ~)
-            @safe error("only β = 1 is supported, got β = $(β).")
-        end
-        @invcheckoff for k in 1:size(C, 2)
-            @inbounds for col in 1:size(xA.parent, 2)
-                    for j in nzrange(xA.parent, col)
-                    anc1 ← zero(eltype(xA))
-                    anc1 += (xA.parent.nzval[j])'
-                    C[col,k] += anc1*B[xA.parent.rowval[j], k]
-                    anc1 -= (xA.parent.nzval[j])'
-                    anc1 → zero(eltype(xA))
-                end
-            end
-        end
-    end
-
-
-@i function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, A::AbstractSparseMatrix, α::Number, β::Number)
-    @safe size(X, 2) == size(A, 1) || throw(DimensionMismatch())
-    @safe size(X, 1) == size(C, 1) || throw(DimensionMismatch())
-    @safe size(A, 2) == size(C, 2) || throw(DimensionMismatch())
-    if (β != 1, ~)
-        @safe error("only β = 1 is supported, got β = $(β).")
-    end
-    @invcheckoff for col in 1:size(A, 2)
-        @inbounds for k in nzrange(A, col)
-            @simd for multivec_row in 1:size(X,1)
-                C[multivec_row, col] += X[multivec_row, A.rowval[k]]*A.nzval[k]*α
-            end
-        end
-    end
-end
-
-# @i function imul!(C::StridedVecOrMat, X::Adjoint{<:Any,<:DenseMatrixUnion}, A::AbstractSparseMatrix, α::Number, β::Number)
-#     @safe size(X, 2) == size(A, 1) || throw(DimensionMismatch())
-#     @safe size(X, 1) == size(C, 1) || throw(DimensionMismatch())
-#     @safe size(A, 2) == size(C, 2) || throw(DimensionMismatch())
-#     if (β != 1, ~)
-#         @safe error("only β = 1 is supported, got β = $(β).")
-#     end
-#     @invcheckoff for multivec_row in 1:size(X, 1)
-#         for col in 1:size(A, 2)
-#             @inbounds for k in nzrange(A, col)
-#                 C[multivec_row, col] += X[multivec_row, A.rowval[k]]*A.nzval[k]*α
-#             end
-#         end
-#     end
-# end
-
-# this is a better version 
-@i function imul!(C::StridedVecOrMat, X::Adjoint{<:Any,<:DenseMatrixUnion}, A::AbstractSparseMatrix, α::Number, β::Number)
-    @safe size(X.parent, 1) == size(A, 1) || throw(DimensionMismatch())
-    @safe size(X.parent, 2) == size(C, 1) || throw(DimensionMismatch())
-    @safe size(A, 2) == size(C, 2) || throw(DimensionMismatch())
-    if (β != 1, ~)
-        @safe error("only β = 1 is supported, got β = $(β).")
-    end
-    @invcheckoff for multivec_row in 1:size(X.parent, 2)
-        for col in 1:size(A, 2)
-            @inbounds for k in nzrange(A, col)
-                C[multivec_row, col] += X.parent[A.rowval[k], multivec_row]*A.nzval[k]*α
-            end
-        end
-    end
-end
-
-@i function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, xA::Adjoint{<:Any,<:AbstractSparseMatrix}, α::Number, β::Number)
-    @safe size(X, 2) == size(xA.parent, 2) || throw(DimensionMismatch())
-    @safe size(X, 1) == size(C, 1) || throw(DimensionMismatch())
-    @safe size(xA.parent, 1) == size(C, 2) || throw(DimensionMismatch())
-    if (β != 1, ~)
-        @safe error("only β = 1 is supported, got β = $(β).")
-    end
-    @invcheckoff for col in 1:size(xA.parent, 2)
-        @inbounds for k in nzrange(xA.parent, col)
-                        anc1 ← zero(eltype(xA.parent))
-                        anc1 += (xA.parent.nzval[k])'
-            @simd for multivec_row in 1:size(X,1)
-                C[multivec_row, xA.parent.rowval[k]] += X[multivec_row, col]*anc1*α
-            end
-            anc1 -= (xA.parent.nzval[k])'
-            anc1 → zero(eltype(xA.parent))
-        end
-    end
-end
-
 @i function idot(r::T, A::SparseMatrixCSC{T},B::SparseMatrixCSC{T}) where {T}
     @routine @invcheckoff begin
         (m, n) ← size(A)
@@ -196,18 +82,6 @@ end
 #     end
 #     return r
 # end
-
-# strange result but I couldn't correct
-@i function idot!(r, x::AbstractVector, A::AbstractSparseMatrix, y::AbstractVector) 
-    @safe length(x) == size(A, 1) || throw(DimensionMismatch())
-    @safe length(y) == size(A, 2) || throw(DimensionMismatch())
-
-    @inbounds for col in size(A, 2)
-        for k in nzrange(A, col)
-            r += (x[A.rowval[k]])' * A.nzval[k] * y[col]
-        end
-    end
-end 
 
 # a simple version of Gustavson matrix algorithms
 function i_spmatmul(A::SparseMatrixCSC{Tv, Ti}, B::SparseMatrixCSC{Tv, Ti}) where {Tv, Ti}
