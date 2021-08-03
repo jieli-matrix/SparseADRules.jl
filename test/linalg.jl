@@ -1,121 +1,54 @@
-using NiSparseArrays:imul!, nilang_mm_jacobian, idot!, i_spmatmul
+using NiSparseArrays:idotxA, idotAx
 const approx_rtol = 100*eps()
 
-# @testset "matrix multiplication" begin
-#     for i = 1:5
-#         A = sprand(10, 5, 0.5)
-#         b = rand(5)
-#         outv = A*b
-#         c = zero(outv)
-#         ioutv = imul!(copy(c), A, b, 1 ,1)[1] # replace with imul!(similar(outv), A, b, 1, 1)[1]?
-#         @test ≈(ioutv, outv, rtol=approx_rtol)
-
-#         B = rand(5, 3)
-#         outm = A*B
-#         C = zero(outm)
-#         ioutm = imul!(copy(C), A, B, 1, 1)[1]
-#         @test ≈(ioutm, outm, rtol=approx_rtol)
-#     end
-# end
-
-# @testset "complex matrix multiplication" begin
-#     for i = 1:5
-#         A = sprand(ComplexF64, 10, 5, 0.2)
-#         b = rand(ComplexF64, 5)
-#         outv = A*b
-#         c = zero(outv)
-#         ioutv = imul!(copy(c), A, b, 1, 1)[1]
-#         @test ≈(ioutv, outv, rtol=approx_rtol)
-
-#         B = rand(ComplexF64, 5, 3)
-#         outm = A*B
-#         C = zero(outm)
-#         ioutm = imul!(copy(C), A, B, 1, 1)[1]
-#         @test ≈(ioutm, outm, rtol=approx_rtol)
-#     end
-# end
-
-# @testset "adjoint matrix multiplication" begin
-#         for i = 1:5
-#             A = sprand(ComplexF64, 5, 5, 0.2)
-#             b = rand(ComplexF64, 5)
-#             outv = A'*b
-#             c= zero(outv)
-#             ioutv = imul!(copy(c), A', b, 1, 1)[1]
-#             @test ≈(ioutv, outv, rtol=approx_rtol)
-
-#             B = rand(ComplexF64, 5, 3)
-#             outm = A'*B
-#             C = zero(outm)
-#             ioutm = imul!(copy(C), A', B, 1, 1)[1]
-#             @test ≈(ioutm, outm, rtol=approx_rtol)
-#         end
-# end
-
-
-
-# @testset "jacobian" begin
-#     for T in [Float64, ComplexF64]
-#         A = sprand(T, 10, 10, 0.2)
-#         x = randn(T, 10)
-#         JF = forwarddiff_mm_jacobian(A, x)
-#         JN = nilang_mm_jacobian(A, x)
-#         @test isapprox(JF, JN)
-#     end
-# end
-
-# @testset "dense matrix-sparse matrix multiplication" begin
-#     for i = 1:5
-#         B = rand(10, 10)
-#         A = sprand(10, 5, 0.5)
-#         outm = B*A
-#         C = zero(outm)
-#         ioutm = imul!(copy(C), B, A, 1 ,1)[1] # replace with imul!(similar(outv), A, b, 1, 1)[1]?
-#         @test ≈(ioutm, outm, rtol=approx_rtol)
-#     end
-# end
-
-# @testset "adjoint dense matrix-sparse matrix multiplication" begin
-#     for i = 1:5
-#         B = rand(10, 5)
-#         A = sprand(10, 5, 0.5)
-#         outm = B'*A
-#         C = zero(outm)
-#         ioutm = imul!(copy(C), B', A, 1 ,1)[1] # replace with imul!(similar(outv), A, b, 1, 1)[1]?
-#         @test ≈(ioutm, outm, rtol=approx_rtol)
-#     end
-# end
-
-# @testset "dense matrix - adjoint sparse matrix multiplication" begin
-#     for i = 1:5
-#         B = rand(10, 10)
-#         A = sprand(5, 10, 0.5)
-#         outm = B*A'
-#         C = zero(outm)
-#         ioutm = imul!(copy(C), B, A', 1 ,1)[1] # replace with imul!(similar(outv), A, b, 1, 1)[1]?
-#         @test ≈(ioutm, outm, rtol=approx_rtol)
-#     end
-# end
-
-# @testset "dense vector - sparse matrix dot" begin
-#     for i = 1:5
-#         x = rand(Float64, 10)
-#         A = sprand(10, 5, 0.2)
-#         y = rand(Float64, 5)
-#         outd = dot(x, A, y)
-#         r = zero(Float64)
-#         ioutd = idot!(copy(r), x, A, y)[1]
-#         @test ≈(ioutd, outd, rtol=approx_rtol)
-#     end
-# end
-
-@testset "simple spatmul implementaation" begin
-    for i = 1:5
-        A = sprand(10,10,0.2);
-        B = sprand(10,10,0.3);
-        C = spmatmul(A, B);
-        iC = i_spmatmul(A, B);
-        @test ≈(C, iC, rtol=approx_rtol)
-
+@testset "sparse dot xA" begin
+    for T in (Float64, ComplexF64)    
+        for i = 1:5
+            x = sprand(T, 10, 0.2)
+            A = sprand(T, 10, 5, 0.2)
+            y = sprand(T, 5, 0.3)
+            outd = dot(x, A, y)
+            r = zero(T)
+            ioutd = idotxA(copy(r), x, A, y)[1]
+            @test ≈(ioutd, outd, rtol=approx_rtol)
+        end
     end
 end
+
+@testset "sparse dot Ax" begin
+    for T in (Float64, ComplexF64)    
+        for i = 1:5
+            x = sprand(T, 10, 0.2)
+            A = sprand(T, 10, 5, 0.2)
+            y = sprand(T, 5, 0.3)
+            outd = dot(x, A, y)
+            r = zero(T)
+            ioutd = idotAx(copy(r), x, A, y)[1]
+            @test ≈(ioutd, outd, rtol=approx_rtol)
+        end
+    end
+end
+
+# m, n = 1000, 500;
+# x = sprand(m, 0.2)
+# A = sprand(m, n, 0.2)
+# y = sprand(n, 0.3)
+# r = zero(eltype(A))
+
+# @testset "SparseArrays dot benchmark" begin
+#     sdb = @benchmarkable SparseArrays.dot($x, $A, $y)
+#     run(sdb)
+#     plot(sdb)
+# end
+
+# @testset "idotxA benchmark" begin    
+#     xAb = @benchmarkable idotxA($copy(r), $x, $A, $y)
+#     run(xAb)
+#     plot(xAb)
+# end
+
+# @testset "idotAx benchmark" begin
+#     Axb = @benchmarkable idotAx($copy(r), $x, $A, $y)
+#     run(Axb)
+#     plot(Axb)
+# end
