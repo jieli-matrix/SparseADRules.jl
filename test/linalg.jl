@@ -9,12 +9,14 @@ const approx_rtol = 100*eps()
             outv = A*b
             c = zero(outv)
             ioutv = imul!(copy(c), A, b, 1 ,1)[1] # replace with imul!(similar(outv), A, b, 1, 1)[1]?
+            @test check_inv(imul!, (copy(c), A, b, 1, 1))
             @test ≈(ioutv, outv, rtol=approx_rtol)
 
             B = rand(T, 5, 3)
             outm = A*B
             C = zero(outm)
             ioutm = imul!(copy(C), A, B, 1, 1)[1]
+            @test check_inv(imul!, (copy(C), A, B, 1, 1))
             @test ≈(ioutm, outm, rtol=approx_rtol)
         end
     end
@@ -28,12 +30,14 @@ end
             outv = A'*b
             c= zero(outv)
             ioutv = imul!(copy(c), A', b, 1, 1)[1]
+            @test check_inv(imul!, (copy(c), A', b, 1, 1))
             @test ≈(ioutv, outv, rtol=approx_rtol)
 
             B = rand(T, 5, 3)
             outm = A'*B
             C = zero(outm)
             ioutm = imul!(copy(C), A', B, 1, 1)[1]
+            @test check_inv(imul!, (copy(C), A', B, 1, 1))
             @test ≈(ioutm, outm, rtol=approx_rtol)
         end
     end    
