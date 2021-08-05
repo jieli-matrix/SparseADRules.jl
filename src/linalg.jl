@@ -1,8 +1,5 @@
 # declare struct 
-const DenseMatrixUnion = Union{StridedMatrix, LowerTriangular, UnitLowerTriangular, UpperTriangular, UnitUpperTriangular, BitMatrix}
-const AdjOrTransDenseMatrix = Union{DenseMatrixUnion,Adjoint{<:Any,<:DenseMatrixUnion},Transpose{<:Any,<:DenseMatrixUnion}}
-const DenseInputVector = Union{StridedVector, BitVector}
-const DenseInputVecOrMat = Union{AdjOrTransDenseMatrix, StridedVector}
+using SparseArrays: DenseMatrixUnion, AdjOrTransDenseMatrix, DenseInputVector, DenseInputVecOrMat
 
 
 @i function imul!(C::StridedVecOrMat, A::AbstractSparseMatrix, B::DenseInputVecOrMat, α::Number, β::Number) 
@@ -48,4 +45,3 @@ end
         end
     end
 end
-
