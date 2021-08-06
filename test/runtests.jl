@@ -1,6 +1,5 @@
 using NiSparseArrays
-using Test
-
+using Test, Random, LinearAlgebra, NiLang, SparseArrays
 @testset "NiSparseArrays.jl" begin
-    # Write your tests here.
+    include("linalg.jl") 
 end

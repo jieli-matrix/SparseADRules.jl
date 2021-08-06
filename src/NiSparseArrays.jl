@@ -1,5 +1,8 @@
 module NiSparseArrays
 
-# Write your package code here.
+using LinearAlgebra, SparseArrays
+using NiLang
+using NiLang.AD 
 
+include("linalg.jl")
 end
