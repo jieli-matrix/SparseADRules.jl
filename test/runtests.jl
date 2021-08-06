@@ -1,8 +1,5 @@
 using NiSparseArrays
-using Test, Random, LinearAlgebra, NiLang, ForwardDiff, SparseArrays
-using NiLang.AD
+using Test, Random, LinearAlgebra, NiLang, SparseArrays
 @testset "NiSparseArrays.jl" begin
-    #include("utils.jl")
-    include("linalg.jl") #add sparse multiplication 
-    #include("jacobian.jl")
+    include("linalg.jl") 
 end
