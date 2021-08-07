@@ -70,12 +70,6 @@ params(B::DenseArray{<:Complex{T}}) where T = collect(reinterpret(T, B[:]))
 fitparams(B::DenseArray{<:T}, p::DenseArray{T2}) where {T<:Complex,T2} = reshape(collect(reinterpret(Complex{T2}, p)), size(B))
 params(A::AbstractSparseMatrix) = params(A.nzval)
 fitparams(A::AbstractSparseMatrix, p) = SparseMatrixCSC(A.m, A.n, A.colptr, A.rowval, fitparams(A.nzval, p))
-function params(xA::Adjoint{<:Any,<:AbstractSparseMatrix})
-    nA = copy(xA)
-    params(nA.nzval)
-end
-function fitparams(xA::Adjoint{<:Any,<:AbstractSparseMatrix}, p) 
-    nA = copy(xA)
-    fitparams(nA, p)
-end
+params(xA::Adjoint) = params(copy(xA))
+fitparams(xA::Adjoint, p) = fitparams(copy(xA), p)
 
