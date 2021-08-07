@@ -33,7 +33,7 @@ end
 end
 
 
-@i function imul!(C::StridedVecOrMat, xA::Adjoint{<:Any,<:AbstractSparseMatrix}, B::DenseInputVecOrMat, α::Number, β::Number)
+@i function imul_v1!(C::StridedVecOrMat, xA::Adjoint{<:Any,<:AbstractSparseMatrix}, B::DenseInputVecOrMat, α::Number, β::Number)
     @safe size(xA.parent, 2) == size(C, 1) || throw(DimensionMismatch())
     @safe size(xA.parent, 1) == size(B, 1) || throw(DimensionMismatch())
     @safe size(B, 2) == size(C, 2) || throw(DimensionMismatch())
@@ -45,11 +45,37 @@ end
                 for j in nzrange(xA.parent, col)
                     @routine begin    
                         anc1 ← zero(eltype(xA))
-                        anc1 += (xA.parent.nzval[j])'
+                        anc1 += (xA.parent.nzval[j])'* α
                     end
                 C[col,k] += anc1 * B[xA.parent.rowval[j], k]
                 ~@routine
             end
+        end
+    end
+end
+
+@i function imul_v2!(C::StridedVecOrMat, xA::Adjoint{<:Any,<:AbstractSparseMatrix}, B::DenseInputVecOrMat, α::Number, β::Number)
+    @safe size(xA.parent, 2) == size(C, 1) || throw(DimensionMismatch())
+    @safe size(xA.parent, 1) == size(B, 1) || throw(DimensionMismatch())
+    @safe size(B, 2) == size(C, 2) || throw(DimensionMismatch())
+    if (β != 1, ~)
+        @safe error("only β = 1 is supported, got β = $(β).")
+    end
+    @invcheckoff for k in 1:size(C, 2)
+        @inbounds for col in 1:size(xA.parent, 2)
+            @routine begin 
+                tmp ← zero(eltype(xA))
+                for j in nzrange(xA.parent, col)
+                    @routine begin    
+                        anc1 ← zero(eltype(xA))
+                        anc1 += (xA.parent.nzval[j])'
+                    end
+                tmp += anc1 * B[xA.parent.rowval[j], k]
+                ~@routine
+                end
+            end
+            C[col,k] += tmp * α
+            ~@routine
         end
     end
 end
