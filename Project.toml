@@ -9,6 +9,7 @@ NiLang = "ab4ef3a6-0b42-11ea-31f6-e34652774712"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
+NiLang = "0.9"
 julia = "1"
 
 [extras]
