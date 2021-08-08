@@ -1,15 +1,3 @@
-# declare struct 
-if VERSION >= v"1.6"
-    # this union alias is added in https://github.com/JuliaLang/julia/pull/39557
-    using SparseArrays: DenseMatrixUnion, AdjOrTransDenseMatrix, DenseInputVector, DenseInputVecOrMat 
-else
-    const DenseMatrixUnion = Union{StridedMatrix, LowerTriangular, UnitLowerTriangular, UpperTriangular, UnitUpperTriangular, BitMatrix}
-    const AdjOrTransDenseMatrix = Union{DenseMatrixUnion,Adjoint{<:Any,<:DenseMatrixUnion},Transpose{<:Any,<:DenseMatrixUnion}}
-    const DenseInputVector = Union{StridedVector, BitVector}
-    const DenseInputVecOrMat = Union{AdjOrTransDenseMatrix, DenseInputVector}
-end
-
-
 @i function imul!(C::StridedVecOrMat, A::AbstractSparseMatrix, B::DenseInputVecOrMat, α::Number, β::Number) 
     @safe size(A, 2) == size(B, 1) || throw(DimensionMismatch())
     @safe size(A, 1) == size(C, 1) || throw(DimensionMismatch())
