@@ -8,7 +8,7 @@ include("testutils.jl")
 
 @testset "NiSparseArrays.jl" begin
     include("linalg.jl")
-    include("utils.jl") 
-    include("jacobian.jl")
+    #include("utils.jl") 
+    #include("jacobian.jl")
     include("chainrules.jl")
 end
