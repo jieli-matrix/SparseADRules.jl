@@ -50,7 +50,8 @@ end
             A = sprand(T, 10, 5, 0.5)
             outm = B*A
             C = zero(outm)
-            ioutm = imul!(copy(C), B, A, 1 ,1)[1] 
+            ioutm = imul!(copy(C), B, A, 1 ,1)[1]
+            @test check_inv(imul!, (copy(C), B, A, 1, 1)) 
             @test ≈(ioutm, outm, rtol=approx_rtol)
         end
     end    
@@ -63,7 +64,8 @@ end
             A = sprand(T, 10, 5, 0.5)
             outm = B'*A
             C = zero(outm)
-            ioutm = imul!(copy(C), B', A, 1 ,1)[1] 
+            ioutm = imul!(copy(C), B', A, 1 ,1)[1]
+            @test check_inv(imul!, (copy(C), B', A, 1, 1))  
             @test ≈(ioutm, outm, rtol=approx_rtol)
         end
     end
@@ -77,6 +79,7 @@ end
             outm = B*A'
             C = zero(outm)
             ioutm = imul!(copy(C), B, A', 1 ,1)[1] 
+            @test check_inv(imul!, (copy(C), B, A', 1, 1))
             @test ≈(ioutm, outm, rtol=approx_rtol)
         end
     end
