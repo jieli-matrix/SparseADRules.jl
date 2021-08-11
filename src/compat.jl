@@ -1,4 +1,4 @@
-if VERSION >= v"1.6"
+@static if VERSION >= v"1.6"
     # this union alias is added in https://github.com/JuliaLang/julia/pull/39557
     using SparseArrays: DenseMatrixUnion, AdjOrTransDenseMatrix, DenseInputVector, DenseInputVecOrMat 
 else
