@@ -27,8 +27,8 @@
     @testset "adjoint dense matrix-sparse matrix multiplication" begin
     #     # adjoint dense matrix * sparse matrix
     #     for T in (Float64)
-            B = rand(T, 10, 5)
-            A = sprand(T, 10, 5, 0.5)
+            B = rand(10, 5)
+            A = sprand(10, 5, 0.5)
             test_rrule(*, B', A ⊢ sprand_tangent(A); check_thunked_output_tangent=false)
     #     end 
     end
