@@ -21,7 +21,7 @@ function ChainRulesCore.rrule(
 end
 
 function ChainRulesCore.rrule(
-    ::typeof(*), X::DenseInputVecOrMat,A::AbstractSparseMatrix{T}
+    ::typeof(*), X::DenseMatrixUnion,A::AbstractSparseMatrix{T}
 ) where T 
     C = X * A
     function mul_pullback(C̄)
@@ -32,7 +32,7 @@ function ChainRulesCore.rrule(
 end
 
 function ChainRulesCore.rrule(
-    ::typeof(*), X::Adjoint{T1, <:DenseInputVecOrMat}, A::AbstractSparseMatrix{T2}
+    ::typeof(*), X::Adjoint{T1, <:DenseMatrixUnion}, A::AbstractSparseMatrix{T2}
 ) where {T1, T2} 
     C = X * A
     function mul_pullback(C̄)
