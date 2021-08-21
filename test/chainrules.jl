@@ -1,7 +1,7 @@
 @testset "test rrule" begin
     @testset "matrix multiplication" begin
         # sparse * vector
-        for T in (ComplexF64, )
+        for T in (Float64, ComplexF64)
             A = sprand(T, 5, 3, 0.5)
             B = rand(T, 3)
             test_rrule(*, A ⊢ sprand_tangent(A), B; check_thunked_output_tangent=false)
