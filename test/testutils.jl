@@ -9,10 +9,16 @@ function sprand_tangent(A::AT) where AT<:SparseMatrixCSC
     return Tangent{AT}(Ā)
 end
 
+function sprand_tangent(A::Adjoint{T, <:AbstractSparseMatrix}) where T
+    Ā = copy(A)
+    return sprand_tangent(Ā)
+end
+
 function Base.:(+)(a::P, b::Tangent{P}) where P<:SparseMatrixCSC
     b[1] .+ a
     return b
 end
+
 function FiniteDifferences.to_vec(A::SparseMatrixCSC{Tv, Ti}) where {Tv, Ti}
     v = reinterpret(real(Tv), A.nzval)
     function SparseMatrixCSC_from_vec(v)
@@ -24,6 +30,11 @@ function FiniteDifferences.to_vec(A::SparseMatrixCSC{Tv, Ti}) where {Tv, Ti}
         SparseMatrixCSC(m, n, colptr, rowval, cv)
     end
     return v, SparseMatrixCSC_from_vec
+end
+
+function FiniteDifferences.to_vec(A::Adjoint{T, <:AbstractSparseMatrix}) where T
+    Ā = copy(A)
+    return FiniteDifferences.to_vec(Ā)
 end
 
 function FiniteDifferences._j′vp(fdm, f, ȳ::Vector{<:Number}, x::Vector{<:Complex})
