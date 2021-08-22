@@ -9,19 +9,39 @@ function sprand_tangent(A::AT) where AT<:SparseMatrixCSC
     return Tangent{AT}(Ā)
 end
 
+function sprand_tangent(A::Adjoint{T, <:AbstractSparseMatrix}) where T
+    Ā = copy(A)
+    return sprand_tangent(Ā)
+end
+
 function Base.:(+)(a::P, b::Tangent{P}) where P<:SparseMatrixCSC
     b[1] .+ a
     return b
 end
-function FiniteDifferences.to_vec(A::AT) where AT<:SparseMatrixCSC
-    v = A.nzval
+
+function FiniteDifferences.to_vec(A::SparseMatrixCSC{Tv, Ti}) where {Tv, Ti}
+    v = reinterpret(real(Tv), A.nzval)
     function SparseMatrixCSC_from_vec(v)
         m = A.m
         n = A.n
         colptr = A.colptr
         rowval = A.rowval
-        AT(m, n, colptr, rowval, v)
+        cv = Vector(reinterpret(Tv, v))
+        SparseMatrixCSC(m, n, colptr, rowval, cv)
     end
     return v, SparseMatrixCSC_from_vec
 end
+
+function FiniteDifferences.to_vec(A::Adjoint{T, <:AbstractSparseMatrix}) where T
+    Ā = copy(A)
+    return FiniteDifferences.to_vec(Ā)
+end
+
+function FiniteDifferences._j′vp(fdm, f, ȳ::Vector{<:Number}, x::Vector{<:Complex})
+    isempty(x) && return eltype(ȳ)[] # if x is empty, then so is the jacobian and x̄
+    r_jcb = transpose(first(FiniteDifferences.jacobian(fdm, f, real(x)))) * real(ȳ)
+    i_jcb = transpose(first(FiniteDifferences.jacobian(fdm, f, imag(x)))) * imag(ȳ)
+    return Complex(r_jcb, i_jcb)
+end
+
 # END ChainRulesTestUtils
