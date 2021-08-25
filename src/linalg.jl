@@ -111,13 +111,14 @@ end
     end
 end
 
+# https://github.com/JuliaLang/julia/blob/e2aeefb60eaffbd2807089155789e19585f4e6fe/stdlib/SparseArrays/src/linalg.jl#L301
 @i function idot(r::T, A::SparseMatrixCSC{T},B::SparseMatrixCSC{T}) where {T}
-    @routine @invcheckoff begin
+    @routine begin
         (m, n) ← size(A)
         branch_keeper ← zeros(Bool, 2*m)
     end
     @safe size(B) == (m,n) || throw(DimensionMismatch("matrices must have the same dimensions"))
-    @invcheckoff @inbounds for j = 1:n
+    for j = 1:n
         @routine begin
             ia1 ← A.colptr[j]
             ib1 ← B.colptr[j]
@@ -126,29 +127,31 @@ end
             ia ← ia1
             ib ← ib1
         end
-        @inbounds for i=1:ia2-ia1+ib2-ib1-1
-            ra ← A.rowval[ia]
-            rb ← B.rowval[ib]
-            if (ra == rb, ~)
-                r += A.nzval[ia]' * B.nzval[ib]
+        if ib2>ib1 && ia2>ia1
+            for i=1:ia2-ia1+ib2-ib1-1
+                ra ← A.rowval[ia]
+                rb ← B.rowval[ib]
+                if ra == rb
+                    r += A.nzval[ia]' * B.nzval[ib]
+                end
+                ## b move -> true, a move -> false
+                branch_keeper[i] ⊻= @const ia >= ia2-1 || (ib < ib2-1 && ra > rb)
+                ra → A.rowval[ia]
+                rb → B.rowval[ib]
+                if (branch_keeper[i], ~)
+                    INC(ib)
+                else
+                    INC(ia)
+                end
             end
-            ## b move -> true, a move -> false
-            branch_keeper[i] ⊻= @const ia == ia2-1 || (ib != ib2-1 && ra > rb)
-            ra → A.rowval[ia]
-            rb → B.rowval[ib]
-            if (branch_keeper[i], ~)
-                INC(ib)
-            else
-                INC(ia)
-            end
-        end
-        ~@inbounds for i=1:ia2-ia1+ib2-ib1-1
-            ## b move -> true, a move -> false
-            branch_keeper[i] ⊻= @const ia == ia2-1 || (ib != ib2-1 && A.rowval[ia] > B.rowval[ib])
-            if (branch_keeper[i], ~)
-                INC(ib)
-            else
-                INC(ia)
+            ~for i=1:ia2-ia1+ib2-ib1-1
+                ## b move -> true, a move -> false
+                branch_keeper[i] ⊻= @const ia >= ia2-1 || (ib < ib2-1 && A.rowval[ia] > B.rowval[ib])
+                if (branch_keeper[i], ~)
+                    INC(ib)
+                else
+                    INC(ia)
+                end
             end
         end
         ~@routine
