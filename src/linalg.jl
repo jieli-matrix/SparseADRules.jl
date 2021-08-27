@@ -118,7 +118,7 @@ end
         branch_keeper ← zeros(Bool, 2*m)
     end
     @safe size(B) == (m,n) || throw(DimensionMismatch("matrices must have the same dimensions"))
-    for j = 1:n
+    @invcheckoff @inbounds for j = 1:n
         @routine begin
             ia1 ← A.colptr[j]
             ib1 ← B.colptr[j]
