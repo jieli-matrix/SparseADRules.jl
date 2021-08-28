@@ -117,7 +117,7 @@ end
 
 @testset "idot - sparse sparse" begin
     for T in (Float64, ComplexF64)    
-        for i = 1:50
+        for i = 1:5
             A = sprand(T, 10, 5, 0.2)
             B = sprand(T, 10, 5, 0.2)
             outd = dot(A, B)
