@@ -1,4 +1,6 @@
-using NiSparseArrays:imul!
+using Test, SparseArrays, LinearAlgebra
+using NiSparseArrays:imul!, idot
+using NiLang
 const approx_rtol = 100*eps()
 
 @testset "matrix multiplication" begin
@@ -81,6 +83,47 @@ end
             ioutm = imul!(copy(C), B, A', 1 ,1)[1] 
             @test check_inv(imul!, (copy(C), B, A', 1, 1))
             @test ≈(ioutm, outm, rtol=approx_rtol)
+        end
+    end
+end
+
+@testset "dense vector - sparse matrix dot" begin
+    for T in (Float64, ComplexF64)    
+        for i = 1:5
+            x = rand(T, 10)
+            A = sprand(T, 10, 5, 0.2)
+            y = rand(T, 5)
+            outd = dot(x, A, y)
+            r = zero(T)
+            ioutd = idot(r, x, A, y)[1]
+            @test ≈(ioutd, outd, rtol=approx_rtol)
+        end
+    end
+end
+
+@testset "sparse vector - sparse matrix dot" begin
+    for T in (Float64, ComplexF64)    
+        for i = 1:5
+            x = sprand(T, 10, 0.2)
+            A = sprand(T, 10, 5, 0.2)
+            y = sprand(T, 5, 0.3)
+            outd = dot(x, A, y)
+            r = zero(T)
+            ioutd = idot(r, x, A, y)[1]
+            @test ≈(ioutd, outd, rtol=approx_rtol)
+        end
+    end
+end
+
+@testset "idot - sparse sparse" begin
+    for T in (Float64, ComplexF64)    
+        for i = 1:5
+            A = sprand(T, 10, 5, 0.2)
+            B = sprand(T, 10, 5, 0.2)
+            outd = dot(A, B)
+            r = zero(T)
+            ioutd = idot(r, A, B)[1]
+            @test ≈(ioutd, outd, rtol=approx_rtol)
         end
     end
 end

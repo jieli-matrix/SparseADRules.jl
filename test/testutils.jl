@@ -4,14 +4,13 @@
 # we use this to generate Tangent and pass to test_rrule
 # for example: A ⊢ sprand_tangent(A)
 function sprand_tangent(A::AT) where AT<:SparseMatrixCSC
-    Ā = copy(A)
-    Ā.nzval .= rand(eltype(A), length(A.nzval))
-    return Tangent{AT}(Ā)
+    return ChainRulesTestUtils.rand_tangent(A)
 end
 
 function sprand_tangent(A::Adjoint{T, <:AbstractSparseMatrix}) where T
-    Ā = copy(A)
-    return sprand_tangent(Ā)
+    # when ProjectTo is supported for Adjoint, copy is not necessary
+    # https://github.com/JuliaDiff/ChainRulesCore.jl/issues/447
+    return ChainRulesTestUtils.rand_tangent(copy(A))
 end
 
 function Base.:(+)(a::P, b::Tangent{P}) where P<:SparseMatrixCSC
