@@ -13,6 +13,10 @@ function sprand_tangent(A::Adjoint{T, <:AbstractSparseMatrix}) where T
     return ChainRulesTestUtils.rand_tangent(copy(A))
 end
 
+function sprand_tangent(x::SparseVector)
+    return ChainRulesTestUtils.rand_tangent(x)
+end
+
 function Base.:(+)(a::P, b::Tangent{P}) where P<:SparseMatrixCSC
     b[1] .+ a
     return b
@@ -35,6 +39,17 @@ function FiniteDifferences.to_vec(A::Adjoint{T, <:AbstractSparseMatrix}) where T
     Ā = copy(A)
     return FiniteDifferences.to_vec(Ā)
 end
+
+# function FiniteDifferences.to_vec(x::SparseVector{Tv, Ti}) where {Tv, Ti}
+#     v= reinterpret(real(Tv), x.nzval)
+#     function SparseVector_from_vec(v)
+#         n = x.n
+#         nzind = x.nzind
+#         cv = Vector(reinterpret(Tv, v))
+#         SparseVector(n, nzind, cv)
+#     end
+#     return v, SparseVector_from_vec
+# end
 
 function FiniteDifferences._j′vp(fdm, f, ȳ::Vector{<:Number}, x::Vector{<:Complex})
     isempty(x) && return eltype(ȳ)[] # if x is empty, then so is the jacobian and x̄

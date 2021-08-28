@@ -46,6 +46,24 @@
         end 
     end
 
+    @testset "dense vector - sparse matrix dot" begin
+        for T in (Float64, ComplexF64)
+            x = rand(T, 10)
+            A = sprand(T, 10, 5, 0.2)
+            y = rand(T, 5)
+            test_rrule(dot, x, A ⊢ sprand_tangent(A), y; check_thunked_output_tangent=false)
+        end
+    end
+
+    # @testset "sparse vector - sparse matrix dot" begin
+    #     for T in (Float64, ComplexF64)
+    #         x = sprand(T, 10, 0.2)
+    #         A = sprand(T, 10, 5, 0.2)
+    #         y = sprand(T, 5, 0.3)
+    #         test_rrule(dot, x ⊢ sprand_tangent(x), A ⊢ sprand_tangent(A), y ⊢ sprand_tangent(y); check_thunked_output_tangent=false)
+    #     end
+    # end
+
     @testset "idot - sparse sparse" begin
         for T in (Float64, ComplexF64)
             A = sprand(T, 10, 5, 0.2)
