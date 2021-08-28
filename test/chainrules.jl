@@ -45,5 +45,14 @@
             test_rrule(*, B', A ⊢ sprand_tangent(A); check_thunked_output_tangent=false)
         end 
     end
+
+    @testset "idot - sparse sparse" begin
+        for T in (Float64, ComplexF64)
+            A = sprand(T, 10, 5, 0.2)
+            B = sprand(T, 10, 5, 0.2)
+            test_rrule(dot, A ⊢ sprand_tangent(A), B ⊢ sprand_tangent(B); check_thunked_output_tangent=false)
+        end
+    end
+
 end
 

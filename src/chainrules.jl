@@ -41,3 +41,15 @@ function ChainRulesCore.rrule(
     end
     return C, mul_pullback
 end
+
+function ChainRulesCore.rrule(
+    ::typeof(dot), A::AbstractSparseMatrix{T},B::AbstractSparseMatrix{T}
+) where T
+    r = dot(A, B)
+    function dot_pullback(r̄)
+        _, i_A, i_B = (~idot)(AD.GVar(r, r̄), AD.GVar(A), AD.GVar(B))
+        return ChainRulesCore.NoTangent(), AD.grad(i_A), AD.grad(i_B)
+    end
+    return r, dot_pullback
+end
+
