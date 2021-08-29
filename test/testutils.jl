@@ -40,17 +40,6 @@ function FiniteDifferences.to_vec(A::Adjoint{T, <:AbstractSparseMatrix}) where T
     return FiniteDifferences.to_vec(Ā)
 end
 
-# function FiniteDifferences.to_vec(x::SparseVector{Tv, Ti}) where {Tv, Ti}
-#     v= reinterpret(real(Tv), x.nzval)
-#     function SparseVector_from_vec(v)
-#         n = x.n
-#         nzind = x.nzind
-#         cv = Vector(reinterpret(Tv, v))
-#         SparseVector(n, nzind, cv)
-#     end
-#     return v, SparseVector_from_vec
-# end
-
 function FiniteDifferences._j′vp(fdm, f, ȳ::Vector{<:Number}, x::Vector{<:Complex})
     isempty(x) && return eltype(ȳ)[] # if x is empty, then so is the jacobian and x̄
     r_jcb = transpose(first(FiniteDifferences.jacobian(fdm, f, real(x)))) * real(ȳ)

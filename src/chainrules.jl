@@ -53,17 +53,6 @@ function ChainRulesCore.rrule(
     return r, dot_pullback
 end
 
-# function ChainRulesCore.rrule(
-#     ::typeof(dot), x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}
-# ) where {T1, T2}
-#     r = dot(x, A, y)
-#     function dot_pullback(r̄)
-#         _, i_x, i_A, i_y = (~idot)(AD.GVar(r, r̄), AD.GVar(x), AD.GVar(A), AD.GVar(y))
-#         return ChainRulesCore.NoTangent(), AD.grad(i_x), AD.grad(i_A), AD.grad(i_y)
-#     end
-#     return r, dot_pullback
-# end
-
 function ChainRulesCore.rrule(
     ::typeof(dot), x::AbstractVector, A::AbstractSparseMatrix{T1}, y::AbstractVector{T2}
 ) where {T1, T2}
