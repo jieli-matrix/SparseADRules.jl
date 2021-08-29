@@ -89,7 +89,7 @@ end
 
 @testset "dense vector - sparse matrix dot" begin
     for T in (Float64, ComplexF64)    
-        for i = 1:5
+        for i = 1:50
             x = rand(T, 10)
             A = sprand(T, 10, 5, 0.2)
             y = rand(T, 5)
@@ -103,7 +103,7 @@ end
 
 @testset "sparse vector - sparse matrix dot" begin
     for T in (Float64, ComplexF64)    
-        for i = 1:5
+        for i = 1:50
             x = sprand(T, 10, 0.2)
             A = sprand(T, 10, 5, 0.2)
             y = sprand(T, 5, 0.3)

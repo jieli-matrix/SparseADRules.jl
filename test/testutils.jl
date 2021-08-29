@@ -13,6 +13,10 @@ function sprand_tangent(A::Adjoint{T, <:AbstractSparseMatrix}) where T
     return ChainRulesTestUtils.rand_tangent(copy(A))
 end
 
+function sprand_tangent(x::SparseVector)
+    return ChainRulesTestUtils.rand_tangent(x)
+end
+
 function Base.:(+)(a::P, b::Tangent{P}) where P<:SparseMatrixCSC
     b[1] .+ a
     return b
