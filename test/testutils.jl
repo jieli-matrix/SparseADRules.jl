@@ -35,6 +35,17 @@ function FiniteDifferences.to_vec(A::SparseMatrixCSC{Tv, Ti}) where {Tv, Ti}
     return v, SparseMatrixCSC_from_vec
 end
 
+function FiniteDifferences.to_vec(x::SparseVector{Tv, Ti}) where {Tv, Ti}
+    v= reinterpret(real(Tv), x.nzval)
+    function SparseVector_from_vec(v)
+        n = x.n
+        nzind = x.nzind
+        cv = Vector(reinterpret(Tv, v))
+        SparseVector(n, nzind, cv)
+    end
+    return v, SparseVector_from_vec
+end
+
 function FiniteDifferences.to_vec(A::Adjoint{T, <:AbstractSparseMatrix}) where T
     Ā = copy(A)
     return FiniteDifferences.to_vec(Ā)
