@@ -96,6 +96,7 @@ end
             outd = dot(x, A, y)
             r = zero(T)
             ioutd = idot(r, x, A, y)[1]
+            @test check_inv(idot, (r, x, A, y))
             @test ≈(ioutd, outd, rtol=approx_rtol)
         end
     end
@@ -110,6 +111,7 @@ end
             outd = dot(x, A, y)
             r = zero(T)
             ioutd = idot(r, x, A, y)[1]
+            @test check_inv(idot, (r, x, A, y))
             @test ≈(ioutd, outd, rtol=approx_rtol)
         end
     end
@@ -123,6 +125,7 @@ end
             outd = dot(A, B)
             r = zero(T)
             ioutd = idot(r, A, B)[1]
+            @test check_inv(idot, (r, A, B))
             @test ≈(ioutd, outd, rtol=approx_rtol)
         end
     end
