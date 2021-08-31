@@ -179,15 +179,15 @@ end
     @safe length(x) == size(A, 1) || throw(DimensionMismatch())
     @safe length(y) == size(A, 2) || throw(DimensionMismatch())
 
-    @invcheckoff for (yi, yv) in zip(y.nzind, y.nzval)
-        for (xi, xv) in  zip(x.nzind, x.nzval)
-            for k in nzrange(A, yi)
-                if A.rowval[k] == xi
+    @invcheckoff for m in 1:nnz(y) 
+        for j in  1:nnz(x) 
+            for k in nzrange(A, y.nzind[m])
+                if A.rowval[k] == x.nzind[j]
                     @routine begin
                         anc ← zero(promote_type(T1, T2))
-                        anc += A.nzval[k] * yv
+                        anc += A.nzval[k] * y.nzval[m]
                     end
-                    r += xv' * anc
+                    r += x.nzval[j]' * anc
                     ~@routine
                 end
             end
