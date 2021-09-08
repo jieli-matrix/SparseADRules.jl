@@ -62,7 +62,7 @@ julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
   644.035 μs (32 allocations: 3.86 MiB)
 ```
 
-You will see that using `NiSparseArrays` would not only speed up the computation process but also save much memory since our implementation keeps the original type rather than dense arrays in gradient computation. 
+You will see that using `NiSparseArrays` would not only speed up the computation process but also save much memory since our implementation does not convert a sparse matrix to a dense arrays in gradient computation. 
 
 ## Contribute 
 
