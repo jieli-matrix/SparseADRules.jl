@@ -7,7 +7,7 @@
 
 [中文版本](README_CN.md)
 
-This is a repository for the Summer 2021 of Open Source Promotion Plan. `NiSparseArrays` implements operations in [`SparseArrays`](https://docs.julialang.org/en/v1/stdlib/SparseArrays/) in a reversible way by [`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/). 
+`NiSparseArrays` is a part of the [Summer 2021 of Open Source Promotion Plan](https://summer.iscas.ac.cn/#/?lang=en). It implements the backward rules for sparse matrix operations using [`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/) and ports these rules to [`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl).
 
 ## Background 
 
