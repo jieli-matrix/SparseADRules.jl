@@ -7,11 +7,11 @@
 
 [英文版本](README.md)
 
-这是开源软件供应链点亮计划-暑期2021仓库。NiSparseArrays 通过[NiLang](https://giggleliu.github.io/NiLang.jl/dev/)以可逆编程地形式对 [SparseArrays](https://docs.julialang.org/en/v1/stdlib/SparseArrays/)进行实现。 
+`NiSparseArrays`是[开源软件供应链点亮计划-暑期2021仓库](https://summer.iscas.ac.cn/#/?lang=chi)之一。`NiSparseArrays` 使用[`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/)对稀疏矩阵操作进行实现从而得到其微分规则，并将这些规则导入至[`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl)。
 
 ## 背景
 
-稀疏矩阵在科学计算中应用广泛，但是在Julia语言里面却没有很好的软件包实现对稀疏矩阵的自动微分，这个项目将会使用可逆嵌入式语言 NiLang.jl 通过对 Julia Base 里的稀疏矩阵操作的改写实现对其自动微分。我们将会把生成的自动微分规则接入到 Julia 生态中最流行的自动微分规则库 ChainRules 中。
+稀疏矩阵在科学计算中应用广泛，但是在Julia语言里面却没有很好的软件包实现对稀疏矩阵的自动微分，这个项目使用可逆嵌入式语言 `NiLang.jl`对稀疏矩阵操作进行实现从而得到其微分规则。生成的微分规则将以扩展的形式导入到`ChainRules.jl`中，使用者可以直接通过使用自动微分包比如[`Zygote`](https://github.com/FluxML/Zygote.jl), [`Flux`](https://github.com/FluxML/Flux.jl)和[`Diffractor`](https://github.com/JuliaDiff/Diffractor.jl)来获取这些特性。
 
 ## 安装 
 
@@ -40,6 +40,30 @@ pkg> add NiSparseArrays
 |`function idot(r, x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}) where {T1, T2}`| 稀疏矩阵与稀疏向量的点积|
 
 API还在不断扩充中...
+
+## 一个简单的用例
+
+这里我们用一个最小的用例去展示如何使用`NiSparseArrays`去加速`Zygote`梯度。更多测试用例，请前往`examples`文件夹查看。
+
+``` julia 
+julia> using SparseArrays, LinearAlgebra, Random, BenchmarkTools
+
+julia> A = sprand(1000, 1000, 0.1);
+
+julia> x = rand(1000);
+
+julia> using Zygote
+
+julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
+  15.065 ms (27 allocations: 8.42 MiB)
+
+julia> using NiSparseArrays
+
+julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
+  644.035 μs (32 allocations: 3.86 MiB)
+```
+
+你会发现使用`NiSparseArrays`不仅能够加速计算过程，还能够节省内存分配——这是因为我们的实现在梯度计算的过程中并不会将一个稀疏矩阵转换为稠密矩阵。
 
 ## 贡献
 

@@ -7,11 +7,11 @@
 
 [中文版本](README_CN.md)
 
-This is a repository for the Summer 2021 of Open Source Promotion Plan. NiSparseArrays implements operations in [SparseArrays](https://docs.julialang.org/en/v1/stdlib/SparseArrays/) in a reversible way by [NiLang](https://giggleliu.github.io/NiLang.jl/dev/). 
+`NiSparseArrays` is a part of the [Summer 2021 of Open Source Promotion Plan](https://summer.iscas.ac.cn/#/?lang=en). It implements the backward rules for sparse matrix operations using [`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/) and ports these rules to [`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl).
 
 ## Background 
 
-Sparse matrices are extensively used in scientific computing, however there is no automatic differentiation package in Julia yet to handle sparse matrix operations yet. This project will utilize the reversible embedded domain-specific language NiLang.jl to differentiate sparse matrix operations by re-writing the sparse functions in Julia base in a reversible style. Furthermore, the generated backward rules would be generated to ChainRules.jl as an extension.
+Sparse matrices are extensively used in scientific computing, however there is no automatic differentiation package in Julia yet to handle sparse matrix operations. This project utilizes the reversible embedded domain-specific language `NiLang.jl` to differentiate sparse matrix operations by writing the sparse matrix operations in a reversible style. The generated backward rules are ported to `ChainRules.jl` as an extension, so that one can access these features in an automatic differentiation package like [`Zygote`](https://github.com/FluxML/Zygote.jl), [`Flux`](https://github.com/FluxML/Flux.jl) and [`Diffractor`](https://github.com/JuliaDiff/Diffractor.jl) directly.
 
 ## Install 
 
@@ -39,6 +39,30 @@ pkg> add NiSparseArrays
 |`function idot(r, x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}) where {T1, T2}`| dot operation between sparsematrix and sparsevector|
 
 More to add in the next stage...
+
+## A Simple Use Case
+
+Here we present a minimal use case to illustrate how to use `NiSparseArrays` to speed up `Zygote`'s gradient computation. To access more examples, please navigate to the `examples` directory.
+
+``` julia 
+julia> using SparseArrays, LinearAlgebra, Random, BenchmarkTools
+
+julia> A = sprand(1000, 1000, 0.1);
+
+julia> x = rand(1000);
+
+julia> using Zygote
+
+julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
+  15.065 ms (27 allocations: 8.42 MiB)
+
+julia> using NiSparseArrays
+
+julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
+  644.035 μs (32 allocations: 3.86 MiB)
+```
+
+You will see that using `NiSparseArrays` would not only speed up the computation process but also save much memory since our implementation does not convert a sparse matrix to a dense arrays in gradient computation. 
 
 ## Contribute 
 
