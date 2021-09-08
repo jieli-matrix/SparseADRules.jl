@@ -40,9 +40,9 @@ pkg> add NiSparseArrays
 
 More to add in the next stage...
 
-## A Simple Using Case
+## A Simple Use Case
 
-Here we present a minimal using case to illustrate how to use `NiSparseArrays` to speed up `Zygote`'s gradient computation. To access more examples, please navigate to the `examples` directory.
+Here we present a minimal use case to illustrate how to use `NiSparseArrays` to speed up `Zygote`'s gradient computation. To access more examples, please navigate to the `examples` directory.
 
 ``` julia 
 julia> using SparseArrays, LinearAlgebra, Random, BenchmarkTools
