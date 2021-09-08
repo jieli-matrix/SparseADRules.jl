@@ -11,7 +11,7 @@
 
 ## Background 
 
-Sparse matrices are extensively used in scientific computing, however there is no automatic differentiation package in Julia yet to handle sparse matrix operations yet. This project will utilize the reversible embedded domain-specific language `NiLang.jl` to differentiate sparse matrix operations by re-writing the sparse functions in Julia base in a reversible style. Furthermore, the generated backward rules would be generated to `ChainRules.jl` as an extension.
+Sparse matrices are extensively used in scientific computing, however there is no automatic differentiation package in Julia yet to handle sparse matrix operations. This project utilizes the reversible embedded domain-specific language `NiLang.jl` to differentiate sparse matrix operations by writing the sparse matrix operations in a reversible style. The generated backward rules are ported to `ChainRules.jl` as an extension, so that one can access these features in an automatic differentiation package like [`Zygote`](https://github.com/FluxML/Zygote.jl), [`Flux`](https://github.com/FluxML/Flux.jl) and [`Diffractor`](https://github.com/JuliaDiff/Diffractor.jl) directly.
 
 ## Install 
 
