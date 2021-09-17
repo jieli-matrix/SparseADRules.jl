@@ -30,10 +30,13 @@ Return the singular value decomposition LowRankSVD(U, S, Vt) of a matrix or a sp
 """
 
 function low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractSparseMatrix{T}, Nothing} = nothing) where T
-    Q = get_approximate_basis(A, l, niter, M)
+    
     if M === nothing
+        Q = get_approximate_basis(A, l, niter, M)
         B = Q' * A
     else
+        M = M .- zero(A)
+        Q = get_approximate_basis(A, l, niter, M)
         B = Q' * (A - M)
     end
 
