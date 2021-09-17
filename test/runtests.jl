@@ -1,4 +1,3 @@
-using ChainRulesCore: include
 using NiSparseArrays
 using Test, Random, LinearAlgebra, NiLang, SparseArrays
 using NiLang.AD, ForwardDiff
@@ -8,7 +7,7 @@ import FiniteDifferences
 include("testutils.jl")
 
 @testset "NiSparseArrays.jl" begin
-    include("linalg.jl")
+    #include("linalg.jl")
     include("chainrules.jl")
     include("lowranksvd.jl")
 end

@@ -4,24 +4,38 @@
 Return Matrix ``Q`` with ``l`` orthonormal columns such that ``Q Q^H A`` approximates ``A``. If ``M`` is specified, then ``Q`` is such that ``Q Q^H (A - M)`` approximates ``A - M``.
 """
 
+struct Normal_QR
+    Q::AbstractArray
+    R::AbstractArray
+    function Normal_QR(Q, R)
+        size(Q, 2) == size(R, 1) || throw(DimensionMismatch("$(size(Q)), $(length(R)) not compatible"))
+        new(Q, R)
+    end
+end
+
+function private_qr(A::AbstractMatrix{T}) where T
+	res = LinearAlgebra.qr(A)
+	Normal_QR(Matrix(res.Q), res.R)
+end
+
 function get_approximate_basis(
     A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractSparseMatrix{T}, Nothing} = nothing) where T
     m, n = size(A)
     Ω = rand(T, (n, l))
     if M === nothing 
-        F_j = qr(A * Ω)
+        F_j_Q = private_qr(A * Ω).Q
         for j = 1:niter
-            F_H_j = qr(A' * Matrix(F_j.Q))
-            F_j = qr(A * Matrix(F_H_j.Q))
+            F_H_j_Q = private_qr(A' * F_j_Q).Q
+            F_j_Q = private_qr(A * F_H_j_Q).Q
         end
     else
-        F_j = qr(A * Ω - M * Ω)
+        F_j_Q = private_qr(A * Ω - M * Ω).Q
         for j = 1:niter
-            F_H_j = qr(A' * Matrix(F_j.Q) - M' * Matrix(F_j.Q))
-            F_j = qr(A * Matrix(F_H_j.Q) - M * Matrix(F_H_j.Q))
+            F_H_j_Q = private_qr(A' * F_j_Q - M' * F_j_Q).Q
+            F_j_Q = private_qr(A * F_H_j_Q - M * F_H_j_Q).Q
         end
     end
-    Matrix(F_j.Q)
+    F_j_Q
 end
 
 """
