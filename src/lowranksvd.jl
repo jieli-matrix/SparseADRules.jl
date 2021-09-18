@@ -4,12 +4,12 @@
 Return Matrix ``Q`` with ``l`` orthonormal columns such that ``Q Q^H A`` approximates ``A``. If ``M`` is specified, then ``Q`` is such that ``Q Q^H (A - M)`` approximates ``A - M``.
 """
 
-struct Normal_QR
-    Q::AbstractArray
-    R::AbstractArray
-    function Normal_QR(Q, R)
+struct Normal_QR{QT,RT}
+    Q::QT
+    R::RT
+    function Normal_QR(Q::QT, R::RT) where {QT<:AbstractMatrix, RT<:AbstractMatrix}
         size(Q, 2) == size(R, 1) || throw(DimensionMismatch("$(size(Q)), $(length(R)) not compatible"))
-        new(Q, R)
+        new{QT, RT}(Q, R)
     end
 end
 
