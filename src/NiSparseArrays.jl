@@ -9,6 +9,7 @@ using ChainRulesCore
 
 include("compat.jl")
 include("linalg.jl")
+include("lowranksvd.jl")
+include("srcutils.jl")
 include("chainrules.jl")
-
 end

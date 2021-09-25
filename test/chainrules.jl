@@ -1,3 +1,4 @@
+using NiSparseArrays:private_qr
 @testset "test rrule" begin
     @testset "matrix multiplication" begin
         # sparse * vector
@@ -69,6 +70,14 @@
             A = sprand(T, 10, 5, 0.2)
             y = sprand(T, 5, 0.3)
             test_rrule(dot, x ⊢ sprand_tangent(x), A ⊢ sprand_tangent(A), y ⊢ sprand_tangent(y); check_thunked_output_tangent=false)
+        end
+    end
+
+    @testset "qr decomposition" begin
+        for size in [(4, 4), (7, 4), (19, 5), (44, 17)]
+            m,n = size
+            X = randn(n,m)
+            test_rrule(private_qr, X; check_thunked_output_tangent=false)
         end
     end
 end

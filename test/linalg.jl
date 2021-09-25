@@ -1,6 +1,4 @@
-using Test, SparseArrays, LinearAlgebra
 using NiSparseArrays:imul!, idot
-using NiLang
 const approx_rtol = 100*eps()
 
 @testset "matrix multiplication" begin
