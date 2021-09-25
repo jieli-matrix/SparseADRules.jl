@@ -99,33 +99,33 @@ function ChainRulesCore.rrule(::typeof(getproperty), F::T, x::Symbol) where T <:
     return getproperty(F, x), getproperty_qr_pullback
 end
 
-@generated function qr_rev_fullrank(q, r, dq, dr)
-    dqnot0 = !(dq <: Nothing)
-    drnot0 = !(dr <: Nothing)
-    (!dqnot0 && !drnot0) && return :(nothing)
-    ex = drnot0 && dqnot0 ? :(r*dr' - dq'*q) : (dqnot0 ? :(-dq'*q) : :(r*dr'))
-    :(b = $(dqnot0 ? :(dq) : :(ZeroAdder())) + q*copyltu!($ex);
-    trtrs!('U', 'N', 'N', r, do_adjoint(b))')
+function qr_rev_fullrank(q, r, dq, dr)
+    dqnot0 = !(dq isa NoTangent)
+    drnot0 = !(dr isa NoTangent)
+    if (!dqnot0 && !drnot0)
+        return NoTangent()
+    end
+    ex = drnot0 && dqnot0 ? r*dr' - dq'*q : (dqnot0 ? -dq'*q  : r*dr')
+    b = dqnot0 ? q*copyltu!(ex)+dq : q*copyltu!(ex)
+    return Matrix(trtrs!('U', 'N', 'N', r, do_adjoint(b))')
 end
 
-@generated function qr_rev(q, r, dq, dr, A)
-    dqnot0 = !(dq <: Nothing)
-    drnot0 = !(dr <: Nothing)
-    (!dqnot0 && !drnot0) && return :(nothing)
-    ex = quote
-        size(r, 1) == size(r, 2) && return qr_rev_fullrank(q, r, dq ,dr)
-        M, N = size(r)
-        B = view(A,:,M+1:N)
-        U = view(r,:,1:M)
-        D = view(r,:,M+1:N)
-        $(if drnot0
-            :(dD = view(dr,:,M+1:N);
-            da = qr_rev_fullrank(q, U, $(dqnot0 ? :(dq+B*dD') : :(B*dD')), view(dr,:,1:M));
-            db = q*dD)
-        else
-            :(da = qr_rev_fullrank(q, U, dq, nothing);
-            db = zero(B))
-        end)
-        hcat(da, db)
+function qr_rev(q, r, dq, dr, A)
+    dqnot0 = !(dq isa NoTangent)
+    drnot0 = !(dr isa NoTangent)
+    (!dqnot0 && !drnot0) && return NoTangent()
+    size(r, 1) == size(r, 2) && return qr_rev_fullrank(q, r, dq ,dr)
+    M, N = size(r)
+    B = view(A,:,M+1:N)
+    U = view(r,:,1:M)
+    D = view(r,:,M+1:N)
+    if drnot0
+        dD = view(dr,:,M+1:N);
+        da = qr_rev_fullrank(q, U, dqnot0 ? dq+B*dD' : B*dD', view(dr,:,1:M))
+        db = q*dD
+    else
+        da = qr_rev_fullrank(q, U, dq, nothing);
+        db = zero(B)
     end
+    return hcat(da, db) 
 end

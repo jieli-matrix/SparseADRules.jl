@@ -54,8 +54,8 @@ function FiniteDifferences.to_vec(A::Adjoint{T, <:AbstractSparseMatrix}) where T
 end
 
 function FiniteDifferences.to_vec(x::S) where {S <: Normal_QR }
-    q_vec, q_back = to_vec(x.Q)
-    r_vec, r_back = to_vec(x.R)
+    q_vec, q_back = FiniteDifferences.to_vec(x.Q)
+    r_vec, r_back = FiniteDifferences.to_vec(x.R)
     function Normal_QR_from_vec(v)
         Q_new = q_back(v.Q)
         R_new = r_back(v.R)
