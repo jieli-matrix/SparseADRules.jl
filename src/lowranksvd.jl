@@ -19,36 +19,42 @@ function private_qr(A::AbstractMatrix{T}) where T
 end
 
 function get_approximate_basis(
-    A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractSparseMatrix{T}, Nothing} = nothing) where T
+    A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractMatrix{T}, Nothing} = nothing) where T
     m, n = size(A)
     Ω = rand(T, (n, l))
     if M === nothing 
-        F_j_Q = private_qr(A * Ω).Q
+        F_j = private_qr(A * Ω)
         for j = 1:niter
-            F_H_j_Q = private_qr(A' * F_j_Q).Q
-            F_j_Q = private_qr(A * F_H_j_Q).Q
+            F_H_j = private_qr(A' * Matrix(F_j.Q))
+            F_j = qr(A * Matrix(F_H_j.Q))
         end
     else
-        F_j_Q = private_qr(A * Ω - M * Ω).Q
+        F_j = qr(A * Ω .- M * Ω)
         for j = 1:niter
-            F_H_j_Q = private_qr(A' * F_j_Q - M' * F_j_Q).Q
-            F_j_Q = private_qr(A * F_H_j_Q - M * F_H_j_Q).Q
+            F_H_j = private_qr(A' * Matrix(F_j.Q) - M' * sum(Matrix(F_j.Q), dims=1))
+            F_j = private_qr(A * Matrix(F_H_j.Q) .- M * Matrix(F_H_j.Q))
         end
     end
-    F_j_Q
+    Matrix(F_j.Q)
 end
+
+
+
 
 """
     low_rank_svd(A, l::Int; niter::Int = 2, M = nothing) -> U, S, Vt
 Return the singular value decomposition LowRankSVD(U, S, Vt) of a matrix or a sparse matrix ``A`` such that ``A ≈ U diag(S) Vt``. In case ``M`` is given, then SVD is computed for the matrix ``A - M``.
 """
 
-function low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractSparseMatrix{T}, Nothing} = nothing) where T
-    Q = get_approximate_basis(A, l, niter, M)
+function low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractMatrix{T}, Nothing} = nothing) where T
+    
     if M === nothing
+        Q = get_approximate_basis(A, l, niter, M)
         B = Q' * A
     else
-        B = Q' * (A - M)
+        size(M, 2) == size(A, 2) || throw(DimensionMismatch())
+        Q = get_approximate_basis(A, l, niter, M)
+        B = Q' * A - sum(Q', dims=2) * M
     end
 
     dense_svd = svd(B)
