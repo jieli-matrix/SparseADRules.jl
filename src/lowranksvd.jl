@@ -19,27 +19,6 @@ function private_qr(A::AbstractMatrix{T}) where T
 end
 
 function get_approximate_basis(
-<<<<<<< HEAD
-    A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractSparseMatrix{T}, Nothing} = nothing) where T
-    m, n = size(A)
-    Ω = rand(T, (n, l))
-    if M === nothing 
-        F_j_Q = private_qr(A * Ω).Q
-        for j = 1:niter
-            F_H_j_Q = private_qr(A' * F_j_Q).Q
-            F_j_Q = private_qr(A * F_H_j_Q).Q
-        end
-    else
-        F_j_Q = private_qr(A * Ω - M * Ω).Q
-        for j = 1:niter
-            F_H_j_Q = private_qr(A' * F_j_Q - M' * F_j_Q).Q
-            F_j_Q = private_qr(A * F_H_j_Q - M * F_H_j_Q).Q
-        end
-    end
-    F_j_Q
-end
-
-=======
     A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractMatrix{T}, Nothing} = nothing) where T
     m, n = size(A)
     Ω = rand(T, (n, l))
@@ -62,20 +41,11 @@ end
 
 
 
->>>>>>> master
 """
     low_rank_svd(A, l::Int; niter::Int = 2, M = nothing) -> U, S, Vt
 Return the singular value decomposition LowRankSVD(U, S, Vt) of a matrix or a sparse matrix ``A`` such that ``A ≈ U diag(S) Vt``. In case ``M`` is given, then SVD is computed for the matrix ``A - M``.
 """
 
-<<<<<<< HEAD
-function low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractSparseMatrix{T}, Nothing} = nothing) where T
-    Q = get_approximate_basis(A, l, niter, M)
-    if M === nothing
-        B = Q' * A
-    else
-        B = Q' * (A - M)
-=======
 function low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractMatrix{T}, Nothing} = nothing) where T
     
     if M === nothing
@@ -85,7 +55,6 @@ function low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Uni
         size(M, 2) == size(A, 2) || throw(DimensionMismatch())
         Q = get_approximate_basis(A, l, niter, M)
         B = Q' * A - sum(Q', dims=2) * M
->>>>>>> master
     end
 
     dense_svd = svd(B)
