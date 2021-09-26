@@ -74,3 +74,58 @@ function ChainRulesCore.rrule(
     end
     return r, dot_pullback
 end
+
+function _qr_pullback(Ȳ::Tangent, F, A)
+    ∂X = qr_rev(F.Q, F.R, Ȳ.Q, Ȳ.R, A)
+    return (NoTangent(), ∂X)
+end
+_qr_pullback(Ȳ::AbstractThunk, F, A) = _qr_pullback(unthunk(Ȳ), F, A)
+function ChainRulesCore.rrule(::typeof(private_qr), X::AbstractArray)
+    F = private_qr(X)
+    qr_pullback(ȳ) = _qr_pullback(ȳ, F, X)
+    return F, qr_pullback
+end
+
+function ChainRulesCore.rrule(::typeof(getproperty), F::T, x::Symbol) where T <: Normal_QR
+    function getproperty_qr_pullback(Ȳ)
+        C = Tangent{T}
+        ∂F = if x === :Q
+            C(Q=Ȳ,)
+        elseif x === :R
+            C(R=Ȳ,)
+        end
+        return NoTangent(), ∂F, NoTangent()
+    end
+    return getproperty(F, x), getproperty_qr_pullback
+end
+
+function qr_rev_fullrank(q, r, dq, dr)
+    dqnot0 = !(dq isa NoTangent)
+    drnot0 = !(dr isa NoTangent)
+    if (!dqnot0 && !drnot0)
+        return NoTangent()
+    end
+    ex = drnot0 && dqnot0 ? r*dr' - dq'*q : (dqnot0 ? -dq'*q  : r*dr')
+    b = dqnot0 ? q*copyltu!(ex)+dq : q*copyltu!(ex)
+    return Matrix(trtrs!('U', 'N', 'N', r, do_adjoint(b))')
+end
+
+function qr_rev(q, r, dq, dr, A)
+    dqnot0 = !(dq isa NoTangent)
+    drnot0 = !(dr isa NoTangent)
+    (!dqnot0 && !drnot0) && return NoTangent()
+    size(r, 1) == size(r, 2) && return qr_rev_fullrank(q, r, dq ,dr)
+    M, N = size(r)
+    B = view(A,:,M+1:N)
+    U = view(r,:,1:M)
+    D = view(r,:,M+1:N)
+    if drnot0
+        dD = view(dr,:,M+1:N);
+        da = qr_rev_fullrank(q, U, dqnot0 ? dq+B*dD' : B*dD', view(dr,:,1:M))
+        db = q*dD
+    else
+        da = qr_rev_fullrank(q, U, dq, nothing);
+        db = zero(B)
+    end
+    return hcat(da, db) 
+end

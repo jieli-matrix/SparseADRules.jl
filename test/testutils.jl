@@ -3,6 +3,8 @@
 
 # we use this to generate Tangent and pass to test_rrule
 # for example: A ⊢ sprand_tangent(A)
+using NiSparseArrays:Normal_QR
+
 function sprand_tangent(A::AT) where AT<:SparseMatrixCSC
     return ChainRulesTestUtils.rand_tangent(A)
 end
@@ -49,6 +51,17 @@ end
 function FiniteDifferences.to_vec(A::Adjoint{T, <:AbstractSparseMatrix}) where T
     Ā = copy(A)
     return FiniteDifferences.to_vec(Ā)
+end
+
+function FiniteDifferences.to_vec(x::S) where {S <: Normal_QR }
+    q_vec, q_back = FiniteDifferences.to_vec(x.Q)
+    r_vec, r_back = FiniteDifferences.to_vec(x.R)
+    function Normal_QR_from_vec(v)
+        Q_new = q_back(v.Q)
+        R_new = r_back(v.R)
+        return S(Q_new, R_new)
+    end
+    return [q_vec; r_vec], Normal_QR_from_vec
 end
 
 function FiniteDifferences._j′vp(fdm, f, ȳ::Vector{<:Number}, x::Vector{<:Complex})
