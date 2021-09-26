@@ -1,3 +1,4 @@
+using ChainRulesCore: include
 using NiSparseArrays
 using Test, Random, LinearAlgebra, NiLang, SparseArrays
 using NiLang.AD, ForwardDiff

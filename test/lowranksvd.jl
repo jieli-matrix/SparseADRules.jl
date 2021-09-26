@@ -17,9 +17,15 @@ using NiSparseArrays:get_approximate_basis, low_rank_svd
                     @test norm(A - A_approx) < approx_rtol*norm(A)
                 end
 
+<<<<<<< HEAD
                 M = sprand(n, m, 0.1)
                 A_m = A - M
                 r_m = rank(A-M)
+=======
+                M = rand(1, m)
+                A_m = A .- M 
+                r_m = rank(A_m)
+>>>>>>> master
                 @testset "Q basis for A - M" begin
                     Q = get_approximate_basis(A, r_m, 2, M)
                     @test norm(A_m - Q*Q'*A_m) < approx_rtol*norm(A_m)

@@ -1,5 +1,6 @@
 module NiSparseArrays
 
+using ChainRulesCore: include
 using Base: promote_eltype
 using LinearAlgebra
 using SparseArrays
