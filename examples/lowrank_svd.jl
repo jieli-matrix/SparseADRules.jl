@@ -3,32 +3,34 @@
 # In this demo we'll show how to insert NiSparseArrays's sparse gradient implementation to boost Zygote's gradient in lowrank svd.
 using Zygote
 using SparseArrays, LinearAlgebra
-using LowRankApprox
 using NiSparseArrays:low_rank_svd
+import FiniteDifferences
 using BenchmarkTools
+using ChainRulesCore, ChainRulesTestUtils
+include(joinpath(@__DIR__, "..", "test", "testutils.jl"))
 
-function svd_loss(A, z, r)
+function svd_loss(A::AbstractSparseMatrix{T}, z::Vector{T}, r::Int) where T
     U, S, Vt = low_rank_svd(A, r)
     residual_mat = U * Diagonal(S) * Vt - U * Diagonal(z) * Vt
     return tr(residual_mat'*residual_mat) # square of Frobenius norm
 end
 
-function psvd_loss(A, z, r)
-    opts = LRAOptions(maxdet_niter=2, rank=r)
-    F = psvdfact(Matrix(A), opts);
-    residual_mat = F.U * Diagonal(F.S) * F.Vt - F.U * Diagonal(z) * F.Vt
-    return tr(residual_mat'*residual_mat) # square of Frobenius norm
-end
 # generate test data
 r = 10
 A = sprand(100, r, 0.2) * Diagonal(rand(r)) * sprand(r, 50, 0.2)
 z = rand(r)
 
-@btime grad_A, grad_z = Zygote.gradient(svd_loss, $A, $z, $r) # 890.868 μs (550 allocations: 1.67 MiB)
-grad_A, grad_z = Zygote.gradient(svd_loss, A, z, r) 
+@btime grad_A = Zygote.gradient(A -> svd_loss(A, z, r), $A) 
+grad_A = Zygote.gradient(A -> svd_loss(A, z, r), A)[1] 
 
-# @btime grad_pA, grad_pz = Zygote.gradient(psvd_loss, $A, $z, $r)
-# grad_pA, grad_pz = Zygote.gradient(psvd_loss, A, z, r)
+grad_fA = FiniteDifferences.grad(FiniteDifferences.central_fdm(5, 1), A -> svd_loss(A, z, r), A)[1]
+
+using Test
+@testset "test AD on lowrank svd" begin
+    @test grad_A ≈ grad_fA
+end
+
+
 
 
 
