@@ -28,6 +28,8 @@ pkg> add NiSparseArrays
 
 ## API References  
 
+### Low-Level Operators
+
 | API             | description        |
 | ---------------- | --------------- |
 | `function imul!(C::StridedVecOrMat, A::AbstractSparseMatrix{T}, B::DenseInputVecOrMat, α::Number, β::Number) where T`   | sparse matrix to dense matrix multiplication |
@@ -35,10 +37,15 @@ pkg> add NiSparseArrays
 |`function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, A::AbstractSparseMatrix{T}, α::Number, β::Number) where T`| dense matrix to sparse matrix multiplication |
 |`function imul!(C::StridedVecOrMat, X::Adjoint{T1, <:DenseMatrixUnion}, A::AbstractSparseMatrix{T2}, α::Number, β::Number) where {T1, T2}`| adjoint dense matrix to sparse matrix multiplication |
 |`imul!(C::StridedVecOrMat, X::DenseMatrixUnion, xA::Adjoint{T, <:AbstractSparseMatrix}, α::Number, β::Number) where T`|dense matrix to sparse matrix multiplication |
+|`function idot(r, A::SparseMatrixCSC{T},B::SparseMatrixCSC{T}) where {T}` | dot operation between sparsematrix and sparsematrix|
 |`function idot(r, x::AbstractVector, A::AbstractSparseMatrix{T1}, y::AbstractVector{T2}) where {T1, T2}` | dot operation between sparsematrix and densevector|
 |`function idot(r, x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}) where {T1, T2}`| dot operation between sparsematrix and sparsevector|
 
-More to add in the next stage...
+### High-Level Operators
+
+| API             | description        |
+| ---------------- | --------------- |
+| `low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractMatrix{T}, Nothing} = nothing) where T` | Return the singular value decomposition of a sparse matrix `A` with estimated rank `l` such that `A ≈ U diag(S) Vt`. In case `M` is given, then SVD is computed for the matrix `A - M`.|
 
 ## A Simple Use Case
 

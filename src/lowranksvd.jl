@@ -43,7 +43,7 @@ end
 
 """
     low_rank_svd(A, l::Int; niter::Int = 2, M = nothing) -> U, S, Vt
-Return the singular value decomposition LowRankSVD(U, S, Vt) of a matrix or a sparse matrix ``A`` such that ``A ≈ U diag(S) Vt``. In case ``M`` is given, then SVD is computed for the matrix ``A - M``.
+Return the singular value decomposition of a sparse matrix ``A`` with estimated rank ``l`` such that ``A ≈ U diag(S) Vt``. In case bias vector ``M`` is given, then SVD is computed for the matrix ``A - M``.
 """
 
 function low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractMatrix{T}, Nothing} = nothing) where T
