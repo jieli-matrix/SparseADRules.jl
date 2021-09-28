@@ -7,7 +7,7 @@
 
 [中文版本](README_CN.md)
 
-`SparseArraysAD` is a part of the [Summer 2021 of Open Source Promotion Plan](https://summer.iscas.ac.cn/#/?lang=en). It implements the backward rules for sparse matrix operations using [`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/) and ports these rules to [`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl).
+`SparseArraysAD` is a part of the [Summer 2021 of Open Source Promotion Plan](https://summer.iscas.ac.cn/#/?lang=en). It implements the backward rules for sparse matrix operations on **CPU** using [`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/) and ports these rules to [`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl).
 
 ## Background 
 
