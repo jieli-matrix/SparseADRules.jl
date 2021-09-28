@@ -67,9 +67,9 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using NiSparseArrays
-            DocMeta.setdocmeta!(NiSparseArrays, :DocTestSetup, :(using NiSparseArrays); recursive=true)
-            doctest(NiSparseArrays)'
+            using SparseArraysAD
+            DocMeta.setdocmeta!(SparseArraysAD, :DocTestSetup, :(using SparseArraysAD); recursive=true)
+            doctest(SparseArraysAD)'
       - run: julia --project=docs docs/make.jl
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

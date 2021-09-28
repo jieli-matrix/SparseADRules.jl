@@ -3,7 +3,7 @@
 
 # we use this to generate Tangent and pass to test_rrule
 # for example: A ⊢ sprand_tangent(A)
-using NiSparseArrays:Normal_QR
+using SparseArraysAD:Normal_QR
 
 function sprand_tangent(A::AT) where AT<:SparseMatrixCSC
     return ChainRulesTestUtils.rand_tangent(A)

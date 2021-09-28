@@ -1,4 +1,4 @@
-using NiSparseArrays:private_qr
+using SparseArraysAD:private_qr
 @testset "test rrule" begin
     @testset "matrix multiplication" begin
         # sparse * vector
