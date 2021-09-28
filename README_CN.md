@@ -36,10 +36,15 @@ pkg> add NiSparseArrays
 |`function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, A::AbstractSparseMatrix{T}, α::Number, β::Number) where T`| 稠密矩阵与稀疏矩阵乘法 |
 |`function imul!(C::StridedVecOrMat, X::Adjoint{T1, <:DenseMatrixUnion}, A::AbstractSparseMatrix{T2}, α::Number, β::Number) where {T1, T2}`| 共轭稠密矩阵与稀疏矩阵乘法 |
 |`imul!(C::StridedVecOrMat, X::DenseMatrixUnion, xA::Adjoint{T, <:AbstractSparseMatrix}, α::Number, β::Number) where T`|稠密矩阵与共轭稀疏矩阵乘法 |
-|`function idot(r, x::AbstractVector, A::AbstractSparseMatrix{T1}, y::AbstractVector{T2}) where {T1, T2}` | 稀疏矩阵与稠密向量的点积|
-|`function idot(r, x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}) where {T1, T2}`| 稀疏矩阵与稀疏向量的点积|
+|`function idot(r, A::SparseMatrixCSC{T},B::SparseMatrixCSC{T}) where {T}` | 稀疏矩阵与稀疏矩阵的点积 |
+|`function idot(r, x::AbstractVector, A::AbstractSparseMatrix{T1}, y::AbstractVector{T2}) where {T1, T2}` | 稀疏矩阵与稠密向量的点积 |
+|`function idot(r, x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}) where {T1, T2}`| 稀疏矩阵与稀疏向量的点积 |
 
-API还在不断扩充中...
+### 高阶算子
+
+| API             | description        |
+| ---------------- | --------------- |
+| `low_rank_svd(A::AbstractSparseMatrix{T}, l::Int, niter::Int = 2, M::Union{AbstractMatrix{T}, Nothing} = nothing) where T` | 返回秩约为`l`的稀疏矩阵`A`的奇异值分解 `A ≈ U diag(S) Vt`。在行向量`M`给定的情形下，对矩阵`A - M`进行奇异值分解。|
 
 ## 一个简单的用例
 
