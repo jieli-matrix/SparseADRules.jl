@@ -1,4 +1,4 @@
-module NiSparseArrays
+module SparseArraysAD
 
 using ChainRulesCore: include
 using Base: promote_eltype

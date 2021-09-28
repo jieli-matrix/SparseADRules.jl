@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = NiSparseArrays
+CurrentModule = SparseArraysAD
 ```
 
-# NiSparseArrays
+# SparseArraysAD
 
-Documentation for [NiSparseArrays](https://github.com/jieli-matrix/NiSparseArrays.jl).
+Documentation for [SparseArraysAD](https://github.com/jieli-matrix/SparseArraysAD.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [NiSparseArrays]
+Modules = [SparseArraysAD]
 ```

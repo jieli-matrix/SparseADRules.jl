@@ -1,6 +1,6 @@
-name = "NiSparseArrays"
-uuid = "b3c78db8-5351-4c94-92cb-e6a7a02f3abe"
-authors = ["JieLi"]
+name = "SparseArraysAD"
+uuid = "a95454b2-43dc-43a4-a61f-16afa2c3f42d"
+authors = ["Jie Li"]
 version = "0.1.0"
 
 [deps]
