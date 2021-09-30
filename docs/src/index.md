@@ -1,14 +1,14 @@
 ```@meta
-CurrentModule = SparseArraysAD
+CurrentModule = SparseADRules
 ```
 
-# SparseArraysAD
+# SparseADRules
 
-Documentation for [SparseArraysAD](https://github.com/jieli-matrix/SparseArraysAD.jl).
+Documentation for [SparseADRules](https://github.com/jieli-matrix/SparseADRules.jl).
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [SparseArraysAD]
+Modules = [SparseADRules]
 ```

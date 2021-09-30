@@ -1,13 +1,13 @@
-# SparseArraysAD
+# SparseADRules
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jieli-matrix.github.io/SparseArraysAD.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jieli-matrix.github.io/SparseArraysAD.jl/dev)
-[![Build Status](https://github.com/jieli-matrix/SparseArraysAD.jl/workflows/CI/badge.svg)](https://github.com/jieli-matrix/SparseArraysAD.jl/actions)
-[![Coverage](https://codecov.io/gh/jieli-matrix/SparseArraysAD.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jieli-matrix/SparseArraysAD.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jieli-matrix.github.io/SparseADRules.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jieli-matrix.github.io/SparseADRules.jl/dev)
+[![Build Status](https://github.com/jieli-matrix/SparseADRules.jl/workflows/CI/badge.svg)](https://github.com/jieli-matrix/SparseADRules.jl/actions)
+[![Coverage](https://codecov.io/gh/jieli-matrix/SparseADRules.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jieli-matrix/SparseADRules.jl)
 
 [英文版本](README.md)
 
-`SparseArraysAD`是[开源软件供应链点亮计划-暑期2021仓库](https://summer.iscas.ac.cn/#/?lang=chi)之一。`SparseArraysAD` 使用[`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/)对稀疏矩阵操作进行实现从而得到其微分规则，并将这些规则导入至[`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl)。
+`SparseADRules`是[开源软件供应链点亮计划-暑期2021仓库](https://summer.iscas.ac.cn/#/?lang=chi)之一。`SparseADRules` 使用[`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/)对稀疏矩阵操作进行实现从而得到其微分规则，并将这些规则导入至[`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl)。
 
 ## 背景
 
@@ -16,7 +16,7 @@
 ## 安装 
 
 ``` shell
-git clone https://github.com/jieli-matrix/SparseArraysAD.jl.git
+git clone https://github.com/jieli-matrix/SparseADRules.jl.git
 # git clone https://gitlab.summer-ospp.ac.cn/summer2021/210370152.git
 ```
 
@@ -24,7 +24,7 @@ git clone https://github.com/jieli-matrix/SparseArraysAD.jl.git
 
 ``` julia
 git clone 
-pkg> add SparseArraysAD 
+pkg> add SparseADRules 
 ```
 
 ## API一览  
@@ -35,7 +35,7 @@ pkg> add SparseArraysAD
 |`function imul!(C::StridedVecOrMat, xA::Adjoint{T, <:AbstractSparseMatrix}, B::DenseInputVecOrMat, α::Number, β::Number) where T` |  共轭稀疏矩阵与稠密矩阵乘法|
 |`function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, A::AbstractSparseMatrix{T}, α::Number, β::Number) where T`| 稠密矩阵与稀疏矩阵乘法 |
 |`function imul!(C::StridedVecOrMat, X::Adjoint{T1, <:DenseMatrixUnion}, A::AbstractSparseMatrix{T2}, α::Number, β::Number) where {T1, T2}`| 共轭稠密矩阵与稀疏矩阵乘法 |
-|`imul!(C::StridedVecOrMat, X::DenseMatrixUnion, xA::Adjoint{T, <:AbstractSparseMatrix}, α::Number, β::Number) where T`|稠密矩阵与共轭稀疏矩阵乘法 |
+|`function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, xA::Adjoint{T, <:AbstractSparseMatrix}, α::Number, β::Number) where T`|稠密矩阵与共轭稀疏矩阵乘法 |
 |`function idot(r, A::SparseMatrixCSC{T},B::SparseMatrixCSC{T}) where {T}` | 稀疏矩阵与稀疏矩阵的点积 |
 |`function idot(r, x::AbstractVector, A::AbstractSparseMatrix{T1}, y::AbstractVector{T2}) where {T1, T2}` | 稀疏矩阵与稠密向量的点积 |
 |`function idot(r, x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}) where {T1, T2}`| 稀疏矩阵与稀疏向量的点积 |
@@ -48,7 +48,7 @@ pkg> add SparseArraysAD
 
 ## 一个简单的用例
 
-这里我们用一个最小的用例去展示如何使用`SparseArraysAD`去加速`Zygote`梯度。更多测试用例，请前往`examples`文件夹查看。
+这里我们用一个最小的用例去展示如何使用`SparseADRules`去加速`Zygote`梯度。更多测试用例，请前往`examples`文件夹查看。
 
 ``` julia 
 julia> using SparseArrays, LinearAlgebra, Random, BenchmarkTools
@@ -62,13 +62,13 @@ julia> using Zygote
 julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
   15.065 ms (27 allocations: 8.42 MiB)
 
-julia> using SparseArraysAD
+julia> using SparseADRules
 
 julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
   644.035 μs (32 allocations: 3.86 MiB)
 ```
 
-你会发现使用`SparseArraysAD`不仅能够加速计算过程，还能够节省内存分配——这是因为我们的实现在梯度计算的过程中并不会将一个稀疏矩阵转换为稠密矩阵。
+你会发现使用`SparseADRules`不仅能够加速计算过程，还能够节省内存分配——这是因为我们的实现在梯度计算的过程中并不会将一个稀疏矩阵转换为稠密矩阵。
 
 ## 贡献
 

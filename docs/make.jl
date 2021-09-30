@@ -1,16 +1,16 @@
-using SparseArraysAD
+using SparseADRules
 using Documenter
 
-DocMeta.setdocmeta!(SparseArraysAD, :DocTestSetup, :(using SparseArraysAD); recursive=true)
+DocMeta.setdocmeta!(SparseADRules, :DocTestSetup, :(using SparseADRules); recursive=true)
 
 makedocs(;
-    modules=[SparseArraysAD],
+    modules=[SparseADRules],
     authors="Jie Li",
-    repo="https://github.com/jieli-matrix/SparseArraysAD.jl/blob/{commit}{path}#{line}",
-    sitename="SparseArraysAD.jl",
+    repo="https://github.com/jieli-matrix/SparseADRules.jl/blob/{commit}{path}#{line}",
+    sitename="SparseADRules.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://jieli-matrix.github.io/SparseArraysAD.jl",
+        canonical="https://jieli-matrix.github.io/SparseADRules.jl",
         assets=String[],
     ),
     pages=[
@@ -19,5 +19,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/jieli-matrix/SparseArraysAD.jl",
+    repo="github.com/jieli-matrix/SparseADRules.jl",
 )

@@ -1,13 +1,13 @@
-# SparseArraysAD
+# SparseADRules
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jieli-matrix.github.io/SparseArraysAD.jl/stable)
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jieli-matrix.github.io/SparseArraysAD.jl/dev)
-[![Build Status](https://github.com/jieli-matrix/SparseArraysAD.jl/workflows/CI/badge.svg)](https://github.com/jieli-matrix/SparseArraysAD.jl/actions)
-[![Coverage](https://codecov.io/gh/jieli-matrix/SparseArraysAD.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jieli-matrix/SparseArraysAD.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://jieli-matrix.github.io/SparseADRules.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://jieli-matrix.github.io/SparseADRules.jl/dev)
+[![Build Status](https://github.com/jieli-matrix/SparseADRules.jl/workflows/CI/badge.svg)](https://github.com/jieli-matrix/SparseADRules.jl/actions)
+[![Coverage](https://codecov.io/gh/jieli-matrix/SparseADRules.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/jieli-matrix/SparseADRules.jl)
 
 [中文版本](README_CN.md)
 
-`SparseArraysAD` is a part of the [Summer 2021 of Open Source Promotion Plan](https://summer.iscas.ac.cn/#/?lang=en). It implements the backward rules for sparse matrix operations on **CPU** using [`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/) and ports these rules to [`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl).
+`SparseADRules` is a part of the [Summer 2021 of Open Source Promotion Plan](https://summer.iscas.ac.cn/#/?lang=en). It implements the backward rules for sparse matrix operations on **CPU** using [`NiLang`](https://giggleliu.github.io/NiLang.jl/dev/) and ports these rules to [`ChainRules`](https://github.com/JuliaDiff/ChainRules.jl).
 
 ## Background 
 
@@ -16,14 +16,14 @@ Sparse matrices are extensively used in scientific computing, however there is n
 ## Install 
 
 ``` shell
-git clone https://github.com/jieli-matrix/SparseArraysAD.jl.git
+git clone https://github.com/jieli-matrix/SparseADRules.jl.git
 # git clone https://gitlab.summer-ospp.ac.cn/summer2021/210370152.git
 ```
 
 To install, type ] in a julia (>=1.6) REPL and then input
 
 ``` julia
-pkg> add SparseArraysAD 
+pkg> add SparseADRules 
 ```
 
 ## API References  
@@ -36,7 +36,7 @@ pkg> add SparseArraysAD
 |`function imul!(C::StridedVecOrMat, xA::Adjoint{T, <:AbstractSparseMatrix}, B::DenseInputVecOrMat, α::Number, β::Number) where T` |  adjoint sparse matrix to dense matrix multiplication |
 |`function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, A::AbstractSparseMatrix{T}, α::Number, β::Number) where T`| dense matrix to sparse matrix multiplication |
 |`function imul!(C::StridedVecOrMat, X::Adjoint{T1, <:DenseMatrixUnion}, A::AbstractSparseMatrix{T2}, α::Number, β::Number) where {T1, T2}`| adjoint dense matrix to sparse matrix multiplication |
-|`imul!(C::StridedVecOrMat, X::DenseMatrixUnion, xA::Adjoint{T, <:AbstractSparseMatrix}, α::Number, β::Number) where T`|dense matrix to sparse matrix multiplication |
+|`function imul!(C::StridedVecOrMat, X::DenseMatrixUnion, xA::Adjoint{T, <:AbstractSparseMatrix}, α::Number, β::Number) where T`|dense matrix to sparse matrix multiplication |
 |`function idot(r, A::SparseMatrixCSC{T},B::SparseMatrixCSC{T}) where {T}` | dot operation between sparsematrix and sparsematrix|
 |`function idot(r, x::AbstractVector, A::AbstractSparseMatrix{T1}, y::AbstractVector{T2}) where {T1, T2}` | dot operation between sparsematrix and densevector|
 |`function idot(r, x::SparseVector, A::AbstractSparseMatrix{T1}, y::SparseVector{T2}) where {T1, T2}`| dot operation between sparsematrix and sparsevector|
@@ -49,7 +49,7 @@ pkg> add SparseArraysAD
 
 ## A Simple Use Case
 
-Here we present a minimal use case to illustrate how to use `SparseArraysAD` to speed up `Zygote`'s gradient computation. To access more examples, please navigate to the `examples` directory.
+Here we present a minimal use case to illustrate how to use `SparseADRules` to speed up `Zygote`'s gradient computation. To access more examples, please navigate to the `examples` directory.
 
 ``` julia 
 julia> using SparseArrays, LinearAlgebra, Random, BenchmarkTools
@@ -63,13 +63,13 @@ julia> using Zygote
 julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
   15.065 ms (27 allocations: 8.42 MiB)
 
-julia> using SparseArraysAD
+julia> using SparseADRules
 
 julia> @btime Zygote.gradient((A, x) -> sum(A*x), $A, $x)
   644.035 μs (32 allocations: 3.86 MiB)
 ```
 
-You will see that using `SparseArraysAD` would not only speed up the computation process but also save much memory since our implementation does not convert a sparse matrix to a dense arrays in gradient computation. 
+You will see that using `SparseADRules` would not only speed up the computation process but also save much memory since our implementation does not convert a sparse matrix to a dense arrays in gradient computation. 
 
 ## Contribute 
 
