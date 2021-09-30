@@ -1,4 +1,4 @@
-using SparseArraysAD:imul!, idot
+using SparseADRules:imul!, idot
 const approx_rtol = 100*eps()
 
 @testset "matrix multiplication" begin

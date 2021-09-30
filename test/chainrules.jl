@@ -1,4 +1,4 @@
-using SparseArraysAD:private_qr
+using SparseADRules:private_qr
 @testset "test rrule" begin
     @testset "matrix multiplication" begin
         # sparse * vector

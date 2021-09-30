@@ -1,4 +1,4 @@
-module SparseArraysAD
+module SparseADRules
 
 using ChainRulesCore: include
 using Base: promote_eltype

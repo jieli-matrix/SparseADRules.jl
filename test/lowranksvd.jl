@@ -1,4 +1,4 @@
-using SparseArraysAD:get_approximate_basis, low_rank_svd
+using SparseADRules:get_approximate_basis, low_rank_svd
 @testset "low rank svd" begin
     for T in (Float64, ComplexF64)
         approx_rtol = 100*eps(real(T))

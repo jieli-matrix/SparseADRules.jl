@@ -1,5 +1,5 @@
-name = "SparseArraysAD"
-uuid = "a95454b2-43dc-43a4-a61f-16afa2c3f42d"
+name = "SparseADRules"
+uuid = "ae8a6b66-6d5b-48e8-98b1-80a7170c1f48"
 authors = ["Jie Li"]
 version = "0.1.0"
 
