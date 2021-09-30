@@ -15,11 +15,6 @@
 
 ## 安装 
 
-``` shell
-git clone https://github.com/jieli-matrix/SparseADRules.jl.git
-# git clone https://gitlab.summer-ospp.ac.cn/summer2021/210370152.git
-```
-
 在julia (>=1.6) REPL 中键入 ] 然后输入
 
 ``` julia

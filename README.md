@@ -15,11 +15,6 @@ Sparse matrices are extensively used in scientific computing, however there is n
 
 ## Install 
 
-``` shell
-git clone https://github.com/jieli-matrix/SparseADRules.jl.git
-# git clone https://gitlab.summer-ospp.ac.cn/summer2021/210370152.git
-```
-
 To install, type ] in a julia (>=1.6) REPL and then input
 
 ``` julia
